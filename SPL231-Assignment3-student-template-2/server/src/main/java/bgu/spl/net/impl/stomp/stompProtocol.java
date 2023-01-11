@@ -9,6 +9,26 @@ public class stompProtocol implements MessagingProtocol<String> {
 
     @Override
     public String process(String msg) {
+        int firstEndLineIndex = msg.indexOf("/n");
+        String stompCommand = msg.substring(0, firstEndLineIndex);
+
+        switch (stompCommand) {
+            case "CONNECT":
+                connectProtocol();
+            case "SEND":
+                sendProtocol();
+            case "SUBSCRIBE":
+                subscribeProtocol();
+            case "UNSUBSCRIBE":
+                unsubscribeProtocol();
+            case "DISCONNECT":
+                disconnectProtocol();
+        }
+        // while(msg != null){
+        // int nextEndLineIndex = msg.indexOf("/n");
+        // String stomCommand = msg.substring(firstEndLineIndex, firstEndLineIndex)
+        // }
+
         return null;
     }
 
@@ -17,6 +37,26 @@ public class stompProtocol implements MessagingProtocol<String> {
     // message.length());
     // return message + " .. " + echoPart + " .. " + echoPart + " ..";
     // }
+
+    private void connectProtocol() {
+        // how to access connections?
+    }
+
+    private void sendProtocol() {
+
+    }
+
+    private void subscribeProtocol() {
+
+    }
+
+    private void unsubscribeProtocol() {
+
+    }
+
+    private void disconnectProtocol() {
+
+    }
 
     @Override
     public boolean shouldTerminate() {
