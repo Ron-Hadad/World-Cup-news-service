@@ -5,9 +5,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 public class connectionsImp<T> implements Connections<T> {
+
+  /*
+   * the next free to use connection id
+   */
+  private static int freeToUseConnId;
+
   /*
    * mapping between connection Ids and their connection handlers(generic. can be
    * NonBlockingConnectionHandler or BlockingConnectionHandler)
@@ -15,9 +19,9 @@ public class connectionsImp<T> implements Connections<T> {
   public HashMap<Integer, ConnectionHandler<T>> connIdToConnHand;
 
   /*
-   * mapping between the existing user names and their password.
+   * mapping the users by userName.
    */
-  public HashMap<String, String> userNameToPass;
+  public HashMap<String, user> userNameToUser;
 
   /*
    * mapping between channels names and array of the subscribed clients
@@ -25,9 +29,24 @@ public class connectionsImp<T> implements Connections<T> {
    */
   public HashMap<String, ArrayList<ConnectionHandler<T>>> channNameToSubConnHand;
 
+  // making it a singlton:
+  private static connectionsImp connectionsInstance = null;
+
+  public static connectionsImp getInstance() {
+    if (connectionsInstance == null) {
+      connectionsInstance = new connectionsImp<>();
+    }
+    return connectionsInstance;
+  }
+
+  private connectionsImp() {
+    freeToUseConnId = 0;
+    connIdToConnHand = new HashMap<>();
+    userNameToUser = new HashMap<>();
+    channNameToSubConnHand = new HashMap<>();
+  }
+
   public boolean send(int connectionId, T msg) {
-    // in which case well wanna return false?
-    // maybe the connection ID does not exist?
     connIdToConnHand.get(connectionId).send(msg);
     return false;
   }
@@ -42,6 +61,28 @@ public class connectionsImp<T> implements Connections<T> {
 
   public void disconnect(int connectionId) {
     connIdToConnHand.remove(connectionId);
+  }
+
+  public static int getFreeToUseConnId() {
+    freeToUseConnId++;
+    return freeToUseConnId;
+  }
+
+  public user getUser(String userName) {
+    return userNameToUser.get(userName);
+  }
+
+  public void addUser(String userName, String passcode) {
+    user newOne = new user(userName, passcode);
+    userNameToUser.put(userName, newOne);
+  }
+
+  public ConnectionHandler<T> getConnHand(Integer connectionId) {
+    return connIdToConnHand.get(connectionId);
+  }
+
+  public void addConnId(Integer connectionId, ConnectionHandler<T> connectionHandler) {
+    connIdToConnHand.put(connectionId, connectionHandler);
   }
 
 }

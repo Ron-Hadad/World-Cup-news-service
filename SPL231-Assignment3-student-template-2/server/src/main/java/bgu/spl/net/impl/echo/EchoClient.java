@@ -12,7 +12,7 @@ public class EchoClient {
     public static void main(String[] args) throws IOException {
 
         if (args.length == 0) {
-            args = new String[]{"localhost", "hello"};
+            args = new String[] { "localhost", "hello" };
         }
 
         if (args.length < 2) {
@@ -20,7 +20,7 @@ public class EchoClient {
             System.exit(1);
         }
 
-        //BufferedReader and BufferedWriter automatically using UTF-8 encoding
+        // BufferedReader and BufferedWriter automatically using UTF-8 encoding
         try (Socket sock = new Socket(args[0], 7777);
                 BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
