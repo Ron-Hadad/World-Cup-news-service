@@ -2,6 +2,8 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -20,6 +22,11 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+        // initialising the connectionId and giving the protocol the "connection"
+        // environment:
+        protocol.start(connectionsImp.getFreeToUseConnId(), connectionsImp.getInstance());
+        // adding the new connection to the connection id's hash map:
+        connectionsImp.getInstance().addConnId(connectionsImp.getFreeToUseConnId(), this);
     }
 
     @Override

@@ -1,60 +1,104 @@
 package bgu.spl.net.impl.stomp;
 
 import bgu.spl.net.api.MessagingProtocol;
-import java.time.LocalDateTime;
+import bgu.spl.net.api.StompMessagingProtocol;
+import bgu.spl.net.srv.Connections;
+import bgu.spl.net.srv.connectionsImp;
+import bgu.spl.net.srv.user;
 
-public class stompProtocol implements MessagingProtocol<String> {
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+public class stompProtocol implements StompMessagingProtocol<String> {
 
     private boolean shouldTerminate = false;
+    public Connections connections;
+    int connectionId;
+
+    public void start(int connectionId, Connections connections) {
+        this.connections = connections;
+        this.connectionId = connectionId;
+    }
 
     @Override
     public String process(String msg) {
-        int firstEndLineIndex = msg.indexOf("/n");
-        String stompCommand = msg.substring(0, firstEndLineIndex);
-
+        String[] msgSpliteByLines = msg.split("/n", 0);
+        String stompCommand = msgSpliteByLines[0];
         switch (stompCommand) {
             case "CONNECT":
-                connectProtocol();
+                connectProtocol(msgSpliteByLines);
             case "SEND":
-                sendProtocol();
+                sendProtocol(msgSpliteByLines);
             case "SUBSCRIBE":
-                subscribeProtocol();
+                subscribeProtocol(msgSpliteByLines);
             case "UNSUBSCRIBE":
-                unsubscribeProtocol();
+                unsubscribeProtocol(msgSpliteByLines);
             case "DISCONNECT":
-                disconnectProtocol();
+                disconnectProtocol(msgSpliteByLines);
         }
-        // while(msg != null){
-        // int nextEndLineIndex = msg.indexOf("/n");
-        // String stomCommand = msg.substring(firstEndLineIndex, firstEndLineIndex)
-        // }
-
-        return null;
+        return "extention most";
     }
 
-    // private String createEcho(String message) {
-    // String echoPart = message.substring(Math.max(message.length() - 2, 0),
-    // message.length());
-    // return message + " .. " + echoPart + " .. " + echoPart + " ..";
-    // }
-
-    private void connectProtocol() {
-        // how to access connections?
+    private void connectProtocol(String[] msgSpliteByLines) {
+        // collecting info:
+        String givenUserName = null;
+        String givenPasscode = null;
+        String givenReceiptId = null;
+        for (String line : msgSpliteByLines) {
+            if (line.startsWith("accept-vertion:1.2")) {
+                // then what? - nothing?
+            }
+            if (line.startsWith("host:")) {
+                // then what? - nothing?
+            }
+            if (line.startsWith("login:")) {
+                givenUserName = line.substring(6);
+            }
+            if (line.startsWith("passcode:")) {
+                givenPasscode = line.substring(9);
+            }
+            if (line.startsWith("receipt-id:")) {
+                givenReceiptId = line.substring(11);
+            }
+        }
+        // proccesing info:
+        if (connections.getUser(givenUserName) != null) {// userName exist
+            if (connections.getUser(givenUserName).getPassword() == givenPasscode) {// correct password
+                connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
+                if (givenReceiptId != null) {// if he want a receipt
+                    connections.send(connectionId, "RECEIPT\nreceipt-id:" + givenReceiptId + "\n");
+                }
+            } else {// wrong password
+                String receiptLine = "";
+                if (givenReceiptId != null) {
+                    receiptLine = "receipt-id:" + givenReceiptId;
+                }
+                String msg = String.format("ERROR\nmessage: wrong password. the password you typed: %s \n %s",
+                        givenPasscode, receiptLine);
+                connections.send(connectionId, msg);
+            }
+        } else {// userName doesnt exist
+            connections.addUser(givenUserName, givenPasscode);
+            connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
+            if (givenReceiptId != null) {// if he want a receipt
+                connections.send(connectionId, "RECEIPT\nreceipt-id:" + givenReceiptId + "\n");
+            }
+        }
     }
 
-    private void sendProtocol() {
+    private void sendProtocol(String[] msgSpliteByLines) {
 
     }
 
-    private void subscribeProtocol() {
+    private void subscribeProtocol(String[] msgSpliteByLines) {
 
     }
 
-    private void unsubscribeProtocol() {
+    private void unsubscribeProtocol(String[] msgSpliteByLines) {
 
     }
 
-    private void disconnectProtocol() {
+    private void disconnectProtocol(String[] msgSpliteByLines) {
 
     }
 
