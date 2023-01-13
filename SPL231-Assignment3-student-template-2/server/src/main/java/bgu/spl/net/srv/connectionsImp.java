@@ -13,6 +13,11 @@ public class connectionsImp<T> implements Connections<T> {
   private static int freeToUseConnId;
 
   /*
+   * the next free to use messege id
+   */
+  private static int freeToUseMessegeId;
+
+  /*
    * mapping between connection Ids and their connection handlers(generic. can be
    * NonBlockingConnectionHandler or BlockingConnectionHandler)
    */
@@ -41,9 +46,11 @@ public class connectionsImp<T> implements Connections<T> {
 
   private connectionsImp() {
     freeToUseConnId = 0;
+    freeToUseMessegeId = 0;
     connIdToConnHand = new HashMap<>();
     userNameToUser = new HashMap<>();
     channNameToSubConnHand = new HashMap<>();
+    // channNameToSubUsers = new HashMap<>();
   }
 
   public boolean send(int connectionId, T msg) {
@@ -68,6 +75,11 @@ public class connectionsImp<T> implements Connections<T> {
     return freeToUseConnId;
   }
 
+  public int getFreeToUseMessegeId() {
+    freeToUseMessegeId++;
+    return freeToUseMessegeId;
+  }
+
   public user getUser(String userName) {
     return userNameToUser.get(userName);
   }
@@ -85,4 +97,30 @@ public class connectionsImp<T> implements Connections<T> {
     connIdToConnHand.put(connectionId, connectionHandler);
   }
 
+  public boolean channelExist(String chan) {
+    return channNameToSubConnHand.containsKey(chan);
+  }
+
+  public void addSub(String userName, String chan, String SubId, int connId) {
+    // adding to the user:
+    getUser(userName).newSub(chan, SubId);
+    // adding to the hash map of the subscribed handllers to the channel:
+    channNameToSubConnHand.get(chan).add(getConnHand(connId));
+  }
+
+  public void unSub(String userName, String SubId, int connId) {
+    // removing from the "connections" DB:
+    String chan = getUser(userName).subIdToChan.get(SubId);
+    channNameToSubConnHand.get(chan).remove(getConnHand(connId));
+    // removing the sub from ths=e user:
+    getUser(userName).unSub(SubId);
+  }
+
+  public void disconnect(String userName, int connId) {
+    // removing subscribe from "connections" DB:
+    ConnectionHandler<T> toDisconnect = connIdToConnHand.get(connId);
+    channNameToSubConnHand.forEach((key, value) -> value.remove(toDisconnect));
+    // removing subscribe from user
+    getUser(userName).clearSub();
+  }
 }
