@@ -14,10 +14,12 @@ public class stompProtocol implements StompMessagingProtocol<String> {
     private boolean shouldTerminate = false;
     public Connections connections;
     int connectionId;
+    String userName;
 
     public void start(int connectionId, Connections connections) {
         this.connections = connections;
         this.connectionId = connectionId;
+        this.userName = null;
     }
 
     @Override
@@ -26,20 +28,20 @@ public class stompProtocol implements StompMessagingProtocol<String> {
         String stompCommand = msgSpliteByLines[0];
         switch (stompCommand) {
             case "CONNECT":
-                connectProtocol(msgSpliteByLines);
+                connectProtocol(msgSpliteByLines, msg);
             case "SEND":
-                sendProtocol(msgSpliteByLines);
+                sendProtocol(msgSpliteByLines, msg);
             case "SUBSCRIBE":
-                subscribeProtocol(msgSpliteByLines);
+                subscribeProtocol(msgSpliteByLines, msg);
             case "UNSUBSCRIBE":
-                unsubscribeProtocol(msgSpliteByLines);
+                unsubscribeProtocol(msgSpliteByLines, msg);
             case "DISCONNECT":
-                disconnectProtocol(msgSpliteByLines);
+                disconnectProtocol(msgSpliteByLines, msg);
         }
-        return "extention most";
+        return null;
     }
 
-    private void connectProtocol(String[] msgSpliteByLines) {
+    private void connectProtocol(String[] msgSpliteByLines, String msg) {
         // collecting info:
         String givenUserName = null;
         String givenPasscode = null;
@@ -64,42 +66,164 @@ public class stompProtocol implements StompMessagingProtocol<String> {
         // proccesing info:
         if (connections.getUser(givenUserName) != null) {// userName exist
             if (connections.getUser(givenUserName).getPassword() == givenPasscode) {// correct password
+                userName = givenUserName;
+                connections.getUser(givenUserName).loggedIn = true;
                 connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
-                if (givenReceiptId != null) {// if he want a receipt
-                    connections.send(connectionId, "RECEIPT\nreceipt-id:" + givenReceiptId + "\n");
-                }
+                sendReceiptIfNeeded(givenReceiptId);
             } else {// wrong password
-                String receiptLine = "";
-                if (givenReceiptId != null) {
-                    receiptLine = "receipt-id:" + givenReceiptId;
-                }
-                String msg = String.format("ERROR\nmessage: wrong password. the password you typed: %s \n %s",
-                        givenPasscode, receiptLine);
-                connections.send(connectionId, msg);
+                sendError("wrong password. the password you typed:", msg, givenReceiptId);
             }
         } else {// userName doesnt exist
             connections.addUser(givenUserName, givenPasscode);
+            userName = givenUserName;
             connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
-            if (givenReceiptId != null) {// if he want a receipt
-                connections.send(connectionId, "RECEIPT\nreceipt-id:" + givenReceiptId + "\n");
-            }
+
         }
     }
 
-    private void sendProtocol(String[] msgSpliteByLines) {
+    private void sendProtocol(String[] msgSpliteByLines, String msg) {
+        // collecting info:
+        String givenDestination = null;
+        String messageToDestribute = null;
+        String givenReceiptId = null;
+        for (String line : msgSpliteByLines) {
+            if (line.startsWith("destination:/")) {
+                givenDestination = line.substring(13);
+            }
+            if (line.startsWith("receipt-id:")) {
+                givenReceiptId = line.substring(11);
+            }
+            if (!line.startsWith("destination:/") & !line.equals("SEND")) {
+                messageToDestribute = messageToDestribute + line + "\n";
+            }
+        }
+        // proccesing info:
+        if (userName != null) {
+            if (givenDestination == null) {// if he did not speceifide a destination.
+                sendError("you must add a destination!!", msg, givenReceiptId);
+            } else {
+                if (!connections.channelExist(givenDestination)) {// case the channel given doesnt exist
+                    sendError("destination does'nt exist!\ndestination given:", msg, givenReceiptId);
+                } else {
+                    if (true) {// if the user isnt subscribed to that cannel
+
+                    } else {// all good, we want to sent the messege
+                        connections.send(givenDestination,
+                                "MESSEGE\nsubscription:  \nmessege-id:" + connections.getFreeToUseMessegeId()
+                                        + "  \ndestination:" + givenDestination + "\n\n" + messageToDestribute);
+                        sendReceiptIfNeeded(givenReceiptId);
+                    }
+                }
+            }
+        } else {
+            sendError("you must login first!", msg, givenReceiptId);
+        }
+    }
+
+    private void subscribeProtocol(String[] msgSpliteByLines, String msg) {
+        // collecting info:
+        String givenDestination = null;
+        String givenReceiptId = null;
+        String givenSubId = null;
+        for (String line : msgSpliteByLines) {
+            if (line.startsWith("destination:/")) {
+                givenDestination = line.substring(13);
+            }
+            if (line.startsWith("id:")) {
+                givenSubId = line.substring(3);
+            }
+            if (line.startsWith("receipt-id:")) {
+                givenReceiptId = line.substring(11);
+            }
+        }
+        // proccesing info:
+        if (userName != null) {
+
+            if (givenDestination == null) {// if he did not speceifide a destination.
+                sendError("you must add a destination!!", msg, givenReceiptId);
+            } else {
+                if (givenSubId == null) {// if he did not speceifide a subscription id
+                    sendError("you must add a subscription id", msg, givenReceiptId);
+                } else {// all good, we want to subscribe the client.
+                    connections.addSub(userName, givenDestination, givenSubId, connectionId);
+                    connections.send(connectionId, "you subscribed succesfully");
+                    sendReceiptIfNeeded(givenReceiptId);
+                }
+            }
+        } else {
+            sendError("you must login first!", msg, givenReceiptId);
+        }
 
     }
 
-    private void subscribeProtocol(String[] msgSpliteByLines) {
+    private void unsubscribeProtocol(String[] msgSpliteByLines, String msg) {
+        // collecting info:
+        String givenReceiptId = null;
+        String givenSubId = null;
+        for (String line : msgSpliteByLines) {
+            if (line.startsWith("id:")) {
+                givenSubId = line.substring(3);
+            }
+            if (line.startsWith("receipt-id:")) {
+                givenReceiptId = line.substring(11);
+            }
+        }
+        // proccesing info:
+        if (userName != null) {
+            if (givenSubId == null) {// if he did not speceifide a subscribe id
+                sendError("you must add the subscribe id!!", msg, givenReceiptId);
+            } else {
+                if (!connections.getUser(userName).hasThatSubId(givenSubId)) {// case he doesnt have that subscribe id
+                    sendError("you do not have that subscribe id!", msg, givenReceiptId);
+                } else {// all good. lets unsebscribe him.
+                    connections.unSub(userName, givenSubId, connectionId);
+                    connections.send(connectionId, "you unsebscribed succesfully");
+                    sendReceiptIfNeeded(givenReceiptId);
+                }
+            }
+        } else {
+            sendError("you must login first!", msg, givenReceiptId);
+        }
 
     }
 
-    private void unsubscribeProtocol(String[] msgSpliteByLines) {
+    private void disconnectProtocol(String[] msgSpliteByLines, String msg) {
+        // collecting info:
+        String givenReceiptId = null;
+        for (String line : msgSpliteByLines) {
+            if (line.startsWith("receipt-id:")) {
+                givenReceiptId = line.substring(11);
+            }
+        }
+        // proccesing info:
+        if (userName != null) {
+            if (givenReceiptId == null) {// case he did not specifide a receipt number.
+                sendError("you must add a receipt to a disconnect frame!", msg, givenReceiptId);
+            } else {// all good. we want to unsubscribe him fro all channels and log him out.
+                connections.disconnect(connectionId);
+                sendReceiptIfNeeded(givenReceiptId);
+                shouldTerminate = true;
+            }
+        } else {
+            sendError("you must login first!", msg, givenReceiptId);
 
+        }
     }
 
-    private void disconnectProtocol(String[] msgSpliteByLines) {
+    private void sendError(String errorSpecification, String wrongArgument, String receiptNum) {
+        String receiptLine = "";
+        if (receiptNum != null) {
+            receiptLine = "receipt-id:" + receiptNum;
+        }
+        String msg = String.format("ERROR\nmessage: %s \n ---- we recieved: %s \n ---- %s", errorSpecification,
+                wrongArgument, receiptLine);
+        connections.send(connectionId, msg);
+    }
 
+    private void sendReceiptIfNeeded(String givenReceiptId) {
+        if (givenReceiptId != null) {// if he want a receipt
+            connections.send(connectionId, "RECEIPT\nreceipt-id:" + givenReceiptId + "\n");
+        }
     }
 
     @Override
