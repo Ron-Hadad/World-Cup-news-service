@@ -24,23 +24,27 @@ int main(int argc, char *argv[]) {
 	short port =  stoi(Messege.substr(Messege.find(':') + 1,Messege.find(' ')));
     
     ConnectionHandler connectionHandler(host, port);
-    if (!connectionHandler.connect()) {
+	bool connected = false;
+	if(!connected){
+		 if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
-    }
-	return 0;
-
-	while(1){
-		// Messege= nextmessege
-		// std::thread keyboardThread;
-		// std::thread serverThread;
-		// keyboardThread.join();
-		// serverThread.join();
 	}
-	
+	else{
+		std::cout <<"The client is already logged in, log out before trying again";
+	}
+	}
+	while(1){
+		//need to understand how to do the loop correctly, how to connect to the socket and to the keyboard
+		std::thread keyboardThread;
+		//std::thread serverThread; //meybe the main thread instead
+		
+		keyboardThread.join();
+		//serverThread.join();
+	}
 	return 0;
 }
-
+	
 
 
 

@@ -7,6 +7,10 @@ class StompProtocol
 {
 private:
 
+    int uniqueSubID;
+
+    int uniqueRecieptID;
+
     //creating a connect frame to send to the server
     std::string ConnectFrame(std::string messege);
 
@@ -27,8 +31,14 @@ private:
 
 public:
 
+    StompProtocol(){}
+
     //recieves command from the keyboard
     //for each command sends a frame to the server
     std::string process(std::string messege);
+
+    std::string getuniqueSubID();
+
+    std::string getuniqueRecieptID();
     
 };

@@ -2,17 +2,16 @@
 #include "../include/StompProtocol.h"
 
 
-
-
-//StompProtocol::StompProtocol(){}
+StompProtocol::StompProtocol() {
+    uniqueSubID = 0;
+    uniqueRecieptID = 0;
+    }
 
 //StompProtocol::~StompProtocol(){}
 
 std::string StompProtocol::process(std::string messege){
     std::string command = messege.substr(0, messege.find(' '));
     if(command == "login"){
-        //check if the clinet is already loged in- if yes print "The client is already logged in, log out before trying again"
-
         return ConnectFrame(messege);
     }
     else if(command == "join"){
@@ -28,44 +27,54 @@ std::string StompProtocol::process(std::string messege){
     else if(command == "summary"){
         PrintSummary();
     }
-    else if(command == "exit"){
+    else if(command == "logout"){
         return DisconnectFrame(messege);
     }
 }
 
+std::string StompProtocol::getuniqueSubID(){
+    return std::to_string(uniqueSubID);
+}
+
+std::string StompProtocol::getuniqueRecieptID(){
+    return std::to_string(uniqueRecieptID);
+}
 
 
-
-
-
-
-
-std::string ConnectFrame(std::string messege){
-    std::string frame = "CONNECT/naccept-version : 1.2/nhost: stomp.cs.bgu.ac.il/n" ;
+std::string StompProtocol::ConnectFrame(std::string messege){
+    std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
     int usernameIndex = messege.find(' ', messege.find('host:'));
     int passwordIndex = messege.find(' ', usernameIndex + 1);
-    frame+= "login: " + messege.substr(usernameIndex,passwordIndex) + "/n";
-    frame+= "passcode: " +  messege.substr(passwordIndex) +"/n/n" + "/0";
+    frame+= "login: " + messege.substr(usernameIndex + 1,passwordIndex + 1) + "\n";
+    frame+= "passcode: " +  messege.substr(passwordIndex) +"\n\n" + "\0";
     return frame;
 }
 
-std::string SendFrame(std::string messege){
+std::string StompProtocol::SendFrame(std::string messege){
+    //recieve : report {file}
+    //need to: (1)read the file
+    //(2) Save each event on the client as a game update reported by the current logged-in user
+    //(3) SEND frame 
+}
+
+std::string StompProtocol::SubscribeFrame(std::string messege){
+    std::string frame = "SUBSCRIBE\ndestination:/";
+    frame += messege.substr(messege.find(' ') + 1) + "id:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    uniqueSubID++;
+    return frame;
+}
+
+std::string StompProtocol::UnsubscribeFrame(std::string messege){
 
 }
 
-std::string SubscribeFrame(std::string messege){
+std::string StompProtocol::DisconnectFrame(std::string messege){
+    std::string frame = "DISCONNECT\nreciept:/" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
+    uniqueRecieptID++;
+    return frame;
+}   
 
-}
-
-std::string UnsubscribeFrame(std::string messege){
-
-}
-
-std::string DisconnectFrame(std::string messege){
-
-}
-
-std::string PrintSummary(){
+std::string StompProtocol::PrintSummary(){
 
 }
 
