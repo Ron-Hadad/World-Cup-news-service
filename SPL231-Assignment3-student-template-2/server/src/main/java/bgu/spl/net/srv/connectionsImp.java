@@ -120,7 +120,7 @@ public class connectionsImp<T> implements Connections<T> {
     // removing subscribe from "connections" DB:
     ConnectionHandler<T> toDisconnect = connIdToConnHand.get(connId);
     channNameToSubConnHand.forEach((key, value) -> value.remove(toDisconnect));
-    // removing subscribe from user
+    // removing subscribe from user DB:
     getUser(userName).clearSub();
   }
 }
