@@ -1,13 +1,12 @@
 #include "../include/StompProtocol.h"
 #include "../include/event.h"
+#include <map>
 
 
 StompProtocol::StompProtocol(ConnectionHandler& connection) : connection(connection), terminateKeyboard(false), terminateServerResponses(false) 
-, uniqueSubID(0), uniqueRecieptID(0)
+, uniqueSubID(0), uniqueRecieptID(0), SubIdToChan{}, ChanToSubId{}, DisconnectId("-1")
 {
 }
-
-//StompProtocol::~StompProtocol(){}
 
 void StompProtocol::keyboardProcess(std::string messege){
     const short bufsize = 1024;
@@ -64,7 +63,7 @@ std::string StompProtocol::SendFrame(std::string messege){
     names_and_events events = parseEventsFile(location);
     std::string game_name = events.team_a_name + "_" + events.team_b_name;
     std::string frame = "SEND\ndestination:" + game_name;
-    //frame+="user:" + connection.currentUser--> need to save the current user somewhere
+    frame += "user:" + connection.getLogedInUser();
     for (Event evn : events.events) {
         frame += "team a:" + evn.get_team_a_name() + "\n";
         frame += "team b:" + evn.get_team_b_name() + "\n";
@@ -86,25 +85,32 @@ std::string StompProtocol::SendFrame(std::string messege){
             frame += stat.second; + "\n";
         }
         frame += "decription:\n" + evn.get_discription();
-        //connection.addReport(connection.getLoginedUser(), game_name, e); //--> need to add an update to the reports
+        //connection.addReport(connection.getLoginedUser(), game_name, evn); //--> need to add an update to the reports
     }
 }
  
 std::string StompProtocol::SubscribeFrame(std::string messege){
     std::string frame = "SUBSCRIBE\ndestination:/";
-    frame += messege.substr(messege.find(' ') + 1) + "id:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    std::string gameName = messege.substr(messege.find(' ') + 1);
+    frame += gameName + "id:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    ChanToSubId[gameName] =  StompProtocol::getuniqueSubID();
+    SubIdToChan[StompProtocol::getuniqueSubID()] = gameName;
     uniqueSubID++;
     return frame;
 }
 
 std::string StompProtocol::UnsubscribeFrame(std::string messege){
     std::string frame = "UBSUBSCRIBE\n/";
-    //need to understand where to get the user id
-    //need to understand how and where the reciept is creating and what is the reciept id
+    std::string gameName = messege.substr(messege.find(' ') + 1);
+    frame += "id:" + ChanToSubId[gameName];
+    frame += "reciept:" + getuniqueRecieptID() +"\n\n\0";
+    uniqueRecieptID++;
+    return frame;
 }
 
 std::string StompProtocol::DisconnectFrame(std::string messege){
     std::string frame = "DISCONNECT\nreciept:/" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
+    DisconnectId = StompProtocol::getuniqueRecieptID();
     uniqueRecieptID++;
     terminateKeyboard = true;
     return frame;
@@ -145,21 +151,21 @@ void StompProtocol::serverProcess(){
             break;
         }
         else{
-            std::string command = responseFrame.substr(0, responseFrame.find(' '));
+            std::string command = responseFrame.substr(0, responseFrame.find('\n'));
             if(command == "RECEIPT"){
-                // map<string, string> headers = frame.getHeaders();
-                // std::string receiptID = headers.find("receipt-id")->second;
-                // std::string receiptCOMMAND = connection.findReceiptCommand(receiptID);
-                // if (receiptCOMMAND == "DISCONNECT") { //If the receipt received is for a DISCONNECT frame - close the connection
-                //     std::cout << "bye bye" << std::endl;
-                //     terminateServerResponses = true;
-                //     connection.close();
-                // }
-
+                if(responseFrame.substr(responseFrame.find("receipt - id :") + 1) == DisconnectId){
+                    std::cout << "bye bye" << std::endl;
+                    terminateServerResponses = true;
+                    connection.setLogedInUser();
+                    connection.close();
+                }
             }
-            else if(command == "MESSEGE"){
-                //need to parse the meesege ,save it and the report 
+            else if(command == "CONNECTED"){
+                std::cout <<"Login Succesfully" << std::endl;
+            }
 
+            else if(command == "MESSEGE"){
+                //need to save the messege(for later summary), and print it 
 
                 // string report = frame.getBody();
                 // vector<string> lines = split(report, '\n');
@@ -173,6 +179,7 @@ void StompProtocol::serverProcess(){
                 // connection.addReport(user, game_name, object);
             }
             else if(command == "ERROR"){
+                std::cout <<responseFrame << std::endl;
                 terminateKeyboard = true;
                 terminateServerResponses = true;
             }
