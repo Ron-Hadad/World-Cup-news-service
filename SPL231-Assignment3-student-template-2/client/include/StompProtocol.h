@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 #include "../include/ConnectionHandler.h"
 
 // TODO: implement the STOMP protocol
@@ -7,12 +10,11 @@ class StompProtocol
 {
 private:
 
+    ConnectionHandler &connection;
     int uniqueSubID;
-
     int uniqueRecieptID;
-
-    //creating a connect frame to send to the server
-    std::string ConnectFrame(std::string messege);
+    bool terminateKeyboard;
+	bool terminateServerResponses;
 
     //creating a send frame to send to the server
     std::string SendFrame(std::string messege);
@@ -27,15 +29,18 @@ private:
     std::string DisconnectFrame(std::string messege);
 
     //printing a summary of game events
-    std::string PrintSummary();
+    std::string PrintSummary(std::string messege);
 
 public:
 
-    StompProtocol(){}
+    StompProtocol(ConnectionHandler& connection);
 
     //recieves command from the keyboard
     //for each command sends a frame to the server
-    std::string process(std::string messege);
+    void keyboardProcess(std::string messege);
+
+
+	void serverProcess();
 
     std::string getuniqueSubID();
 
