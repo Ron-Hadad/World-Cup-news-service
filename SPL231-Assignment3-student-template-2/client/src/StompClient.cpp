@@ -24,24 +24,29 @@ int main(int argc, char *argv[]) {
 	short port =  stoi(Messege.substr(Messege.find(':') + 1,Messege.find(' ')));
     
     ConnectionHandler connectionHandler(host, port);
-	bool connected = false;
-	if(!connected){
-		 if (!connectionHandler.connect()) {
+	if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
-	}
-	else{
-		std::cout <<"The client is already logged in, log out before trying again";
-	}
-	}
-	while(1){
-		//need to understand how to do the loop correctly, how to connect to the socket and to the keyboard
-		std::thread keyboardThread;
-		//std::thread serverThread; //meybe the main thread instead
-		
-		keyboardThread.join();
-		//serverThread.join();
-	}
+    }
+	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
+    int usernameIndex = Messege.find(' ', Messege.find('host:'));
+    int passwordIndex = Messege.find(' ', usernameIndex + 1);
+    frame+= "login: " + Messege.substr(usernameIndex + 1,passwordIndex + 1) + "\n";
+    frame+= "passcode: " +  Messege.substr(passwordIndex) +"\n\n" + "\0";
+
+	//connectionHandler.connectUser(Messege.substr(usernameIndex + 1,passwordIndex + 1)); // need to see how to connect user
+
+    connectionHandler.sendFrame(frame);
+	try {
+        StompProtocol protocol(connectionHandler);
+        std::thread serverThread(&StompProtocol::serverProcess, &protocol); 
+        std::thread keyboardThread(&StompProtocol::keyboardProcess, &protocol); 
+        serverThread.join();
+        keyboardThread.join();
+    }
+	//catch(exception) {
+    //     std::cout << "An error received, disconnecting.." << std::endl;
+    // }
 	return 0;
 }
 	
