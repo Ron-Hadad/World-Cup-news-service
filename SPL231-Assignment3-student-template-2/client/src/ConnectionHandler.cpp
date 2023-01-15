@@ -8,11 +8,22 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port), io_service_(),
-                                                                socket_(io_service_) {}
+ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port),currentUser(), logedIn(false),
+io_service_(), socket_(io_service_) {}
 
 ConnectionHandler::~ConnectionHandler() {
 	close();
+}
+
+std::string ConnectionHandler::getLogedInUser()
+{
+	return currentUser;
+}
+
+void ConnectionHandler::connectUser(std::string user)
+{
+	currentUser = user;
+	logedIn = true;
 }
 
 bool ConnectionHandler::connect() {
@@ -30,6 +41,10 @@ bool ConnectionHandler::connect() {
 		return false;
 	}
 	return true;
+}
+
+void ConnectionHandler::setLogedInUser(){
+	logedIn = false;
 }
 
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {

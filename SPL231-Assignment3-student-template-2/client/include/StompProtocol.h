@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include "../include/ConnectionHandler.h"
+#include <map>
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -13,8 +14,11 @@ private:
     ConnectionHandler &connection;
     int uniqueSubID;
     int uniqueRecieptID;
+    std::string DisconnectId;
     bool terminateKeyboard;
 	bool terminateServerResponses;
+    std::map <std::string,std::string> SubIdToChan;
+    std::map <std::string,std::string> ChanToSubId;
 
     //creating a send frame to send to the server
     std::string SendFrame(std::string messege);
