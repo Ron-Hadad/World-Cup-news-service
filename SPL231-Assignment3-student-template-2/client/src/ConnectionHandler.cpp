@@ -43,8 +43,8 @@ bool ConnectionHandler::connect() {
 	return true;
 }
 
-void ConnectionHandler::setLogedInUser(){
-	logedIn = false;
+void ConnectionHandler::setLogedInUser(bool stat){
+	logedIn = stat;
 }
 
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
