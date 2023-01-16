@@ -1,5 +1,6 @@
 #include "../include/StompProtocol.h"
 #include "../include/event.h"
+#include <vector>
 #include <map>
 
 
@@ -40,6 +41,9 @@ void StompProtocol::keyboardProcess(std::string messege){
                 std::string frame = DisconnectFrame(messege);
                 connection.sendFrame(frame);
             }
+            else {
+                std::cout << "Command is invalid. Enter a new command" << std::endl;
+            }
         }
     }
 }
@@ -62,7 +66,7 @@ std::string StompProtocol::SendFrame(std::string messege){
     ifile.open(location);
     names_and_events events = parseEventsFile(location);
     std::string game_name = events.team_a_name + "_" + events.team_b_name;
-    std::string frame = "SEND\ndestination:" + game_name;
+    std::string frame = "SEND\ndestination:/" + game_name;
     frame += "user:" + connection.getLogedInUser();
     for (Event evn : events.events) {
         frame += "team a:" + evn.get_team_a_name() + "\n";
@@ -128,6 +132,8 @@ std::string StompProtocol::PrintSummary(std::string messege){
     std::string game_name = messegeParts[1];
     std::string user = messegeParts[2];
     std::string file = messegeParts[3];
+
+    
     // vector<Event> reports = connection.getReportsByUser(user, game_name);
     // if (!reports.empty()) {
     //     std::string team_a_name = reports.at(0).get_team_a_name();
@@ -153,10 +159,10 @@ void StompProtocol::serverProcess(){
         else{
             std::string command = responseFrame.substr(0, responseFrame.find('\n'));
             if(command == "RECEIPT"){
-                if(responseFrame.substr(responseFrame.find("receipt - id :") + 1) == DisconnectId){
+                if(responseFrame.substr(responseFrame.find(":") + 1) == DisconnectId){
                     std::cout << "bye bye" << std::endl;
                     terminateServerResponses = true;
-                    connection.setLogedInUser();
+                    connection.setLogedInUser(false);
                     connection.close();
                 }
             }
@@ -165,7 +171,24 @@ void StompProtocol::serverProcess(){
             }
 
             else if(command == "MESSEGE"){
-                //need to save the messege(for later summary), and print it 
+                //need to save the messege(for later summary), and print it
+                std::string delimiter = "\n";
+                std::vector <std::string> lines;
+                int indexStart = 0;
+                int indexEnd = responseFrame.find(delimiter);
+                int count = 0;
+
+                while (indexEnd != std::string::npos & count < 5) {
+                    lines.push_back(responseFrame.substr(indexStart, indexEnd - indexStart));
+                    indexStart = indexEnd + delimiter.length();
+                    indexEnd = responseFrame.find(delimiter, indexStart);
+                    count++;
+                }
+                int startBody = indexEnd + delimiter.length();
+                std::string subID = lines[1].substr(lines[1].find(':') + 1);
+                std:: string gameName = SubIdToChan[subID];
+                
+
 
                 // string report = frame.getBody();
                 // vector<string> lines = split(report, '\n');

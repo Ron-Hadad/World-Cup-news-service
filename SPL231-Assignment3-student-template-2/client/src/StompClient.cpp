@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	std::cout <<"enter a messege: ";
 	std::getline(std::cin, Messege);
 
-	while(!Messege.find("login")){
+	while(!Messege.substr(Messege.find(" ")) != 'login'){
 		std::cout <<"enter again: ";
 		std::getline(std::cin, Messege);
 	}
@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 	std::string currentUser = Messege.substr(usernameIndex + 1,passwordIndex + 1);
     frame+= "login: " + currentUser + "\n";
     frame+= "passcode: " +  Messege.substr(passwordIndex) +"\n\n" + "\0";
+
 	connectionHandler.connectUser(currentUser);
     connectionHandler.sendFrame(frame);
     StompProtocol protocol(connectionHandler);

@@ -27,7 +27,7 @@ public:
 
 	std::string getLogedInUser();
 
-	void setLogedInUser();
+	void setLogedInUser(bool stat);
 
 	// Read a fixed number of bytes from the server - blocking.
 	// Returns false in case the connection is closed before bytesToRead bytes can be read.
