@@ -1,7 +1,7 @@
 package bgu.spl.net.impl.rci;
 
 import bgu.spl.net.api.MessagingProtocol;
-import bgu.spl.net.srv.Connections;
+//import bgu.spl.net.srv.Connections;
 
 import java.io.Serializable;
 
@@ -23,10 +23,10 @@ public class RemoteCommandInvocationProtocol<T> implements MessagingProtocol<Ser
         return false;
     }
 
-    @Override
-    public void start(int connectionId, Connections<Serializable> connections) {
-        // TODO Auto-generated method stub
+    // @Override
+    // public void start(int connectionId, Connections<String> connections) {
+    //     // TODO Auto-generated method stub
 
-    }
+    // }
 
 }

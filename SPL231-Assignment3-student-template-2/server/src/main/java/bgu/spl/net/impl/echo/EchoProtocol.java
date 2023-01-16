@@ -26,9 +26,9 @@ public class EchoProtocol implements MessagingProtocol<String> {
         return shouldTerminate;
     }
 
-    @Override
-    public void start(int connectionId, Connections<String> connections) {
-        // TODO Auto-generated method stub
+    // @Override
+    // public void start(int connectionId, Connections<String> connections) {
+    //     // TODO Auto-generated method stub
 
-    }
+    // }
 }

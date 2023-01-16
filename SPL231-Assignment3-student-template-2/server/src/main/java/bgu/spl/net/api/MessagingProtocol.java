@@ -1,6 +1,6 @@
 package bgu.spl.net.api;
 
-import bgu.spl.net.srv.Connections;
+//import bgu.spl.net.srv.Connections;
 
 public interface MessagingProtocol<T> {
 
@@ -20,6 +20,6 @@ public interface MessagingProtocol<T> {
     /*
      * hope its ok to chaige this interface.
      */
-    void start(int connectionId, Connections<T> connections);
+    //void start(int connectionId, Connections<String> connections);
 
 }
