@@ -17,16 +17,18 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
+    public Connections<T> connections;
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, MessagingProtocol<T> protocol) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, Connections<T> connections) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+        this.connections = connections;
         // initialising the connectionId and giving the protocol the "connection"
         // environment:
-        protocol.start(connectionsImp.getFreeToUseConnId(), connectionsImp.getInstance());
+        protocol.start(connectionsImp.getFreeToUseConnId(), connections);
         // adding the new connection to the connection id's hash map:
-        connectionsImp.getInstance().addConnId(connectionsImp.getFreeToUseConnId(), this);
+        connections.addConnId(connectionsImp.getFreeToUseConnId(), this);
     }
 
     @Override

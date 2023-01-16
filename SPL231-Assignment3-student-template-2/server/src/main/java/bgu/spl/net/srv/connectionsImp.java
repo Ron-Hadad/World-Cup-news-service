@@ -1,7 +1,7 @@
 package bgu.spl.net.srv;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
+//import java.io.IOException;
+//import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,22 +35,21 @@ public class connectionsImp<T> implements Connections<T> {
   public HashMap<String, ArrayList<ConnectionHandler<T>>> channNameToSubConnHand;
 
   // making it a singlton:
-  private static connectionsImp connectionsInstance = null;
+  //private static connectionsImp<String> connectionsInstance = null;
 
-  public static connectionsImp getInstance() {
-    if (connectionsInstance == null) {
-      connectionsInstance = new connectionsImp<>();
-    }
-    return connectionsInstance;
-  }
+  // public static connectionsImp<String> getInstance() {
+  //   if (connectionsInstance == null) {
+  //     connectionsInstance = new connectionsImp<String>();
+  //   }
+  //   return connectionsInstance;
+  // }
 
-  private connectionsImp() {
+  public connectionsImp() {
     freeToUseConnId = 0;
     freeToUseMessegeId = 0;
     connIdToConnHand = new HashMap<>();
     userNameToUser = new HashMap<>();
     channNameToSubConnHand = new HashMap<>();
-    // channNameToSubUsers = new HashMap<>();
   }
 
   public boolean send(int connectionId, T msg) {

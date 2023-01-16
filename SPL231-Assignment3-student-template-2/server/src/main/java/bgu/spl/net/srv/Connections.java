@@ -1,7 +1,7 @@
 package bgu.spl.net.srv;
 
-import java.io.IOException;
-import java.util.HashMap;
+//import java.io.IOException;
+//import java.util.HashMap;
 
 public interface Connections<T> {
 

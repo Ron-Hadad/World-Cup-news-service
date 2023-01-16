@@ -1,22 +1,22 @@
 package bgu.spl.net.impl.stomp;
 
-import bgu.spl.net.api.MessagingProtocol;
+//import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.srv.Connections;
-import bgu.spl.net.srv.connectionsImp;
-import bgu.spl.net.srv.user;
+//import bgu.spl.net.srv.connectionsImp;
+//import bgu.spl.net.srv.user;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+//import java.time.LocalDateTime;
+//import java.util.ArrayList;
 
 public class stompProtocol implements StompMessagingProtocol<String> {
 
     private boolean shouldTerminate = false;
-    public Connections connections;
+    public Connections<String> connections;
     int connectionId;
     String userName;
 
-    public void start(int connectionId, Connections connections) {
+    public void start(int connectionId, Connections<String> connections) {
         this.connections = connections;
         this.connectionId = connectionId;
         this.userName = null;
@@ -105,8 +105,8 @@ public class stompProtocol implements StompMessagingProtocol<String> {
                 if (!connections.channelExist(givenDestination)) {// case the channel given doesnt exist
                     sendError("destination does'nt exist!\ndestination given:", msg, givenReceiptId);
                 } else {
-                    if (true) {// if the user isnt subscribed to that cannel
-
+                    if (connections.getUser(userName).userSubToChann(givenDestination)) {// if the user isnt subscribed to that cannel
+                        sendError("your not subscribe to that channel!", msg, givenReceiptId);
                     } else {// all good, we want to sent the messege
                         connections.send(givenDestination,
                                 "MESSEGE\nsubscription:  \nmessege-id:" + connections.getFreeToUseMessegeId()
