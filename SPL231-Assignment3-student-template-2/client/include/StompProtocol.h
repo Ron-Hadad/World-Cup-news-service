@@ -42,7 +42,7 @@ public:
 
     //recieves command from the keyboard
     //for each command sends a frame to the server
-    void keyboardProcess(std::string messege);
+    void keyboardProcess();
 
     void write_to_file(const std::string& file_name, const std::string& data);
 
@@ -52,7 +52,7 @@ public:
 
     std::string getuniqueRecieptID();
 
-    vector<std::string> split(std::string msg);
+    vector<std::string> split(std::string msg, std::string delimiter);
 
     Event createEvent(vector<std::string> lines);
     
