@@ -137,7 +137,7 @@ std::string StompProtocol::PrintSummary(std::string messege){
     std::string data = team_a_name + "vs" + team_b_name;
     data += "Game stats:\n";
     data += "General stats:\n";
-    //need to understand how to create data like the format they want in the last page of the assignment
+    //need to understand how to create 'data' like the format they want in the 16-17 page of the assignment
     //the problem is they want it to be ordered by categories: first all the general stats, than all the team a stats and
     // than all the team b stats and so on. im not sure how to do it...
 
@@ -147,10 +147,10 @@ std::string StompProtocol::PrintSummary(std::string messege){
 
         // }
     }
-    //cout << file.rdbuf(); // soppused to print all the file in the end
+    //cout << file.rdbuf(); // suppused to print all the file in the end
 }
 
-//gets a file path, if it is exist write  the data over it, if not, create it and than write it.
+//gets a file path and data to write, if the file exist writes the data over it, if not, create it and than write it.
 void write_to_file(const std::string& file_name, const std::string& data) {
     std::fstream file;
     file.open(file_name, std::ios::out | std::ios::trunc);
@@ -161,7 +161,6 @@ void write_to_file(const std::string& file_name, const std::string& data) {
     file << data << std::endl;
     file.close();
 }
-
 
 
 void StompProtocol::serverProcess(){
