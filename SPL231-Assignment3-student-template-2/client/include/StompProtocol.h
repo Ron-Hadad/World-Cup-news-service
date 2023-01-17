@@ -5,6 +5,7 @@
 #include <iostream>
 #include "../include/ConnectionHandler.h"
 #include <map>
+#include <mutex>
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -43,6 +44,7 @@ public:
     //for each command sends a frame to the server
     void keyboardProcess(std::string messege);
 
+    void write_to_file(const std::string& file_name, const std::string& data);
 
 	void serverProcess();
 

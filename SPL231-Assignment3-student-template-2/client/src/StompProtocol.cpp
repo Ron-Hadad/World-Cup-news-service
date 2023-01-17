@@ -4,6 +4,7 @@
 #include <map>
 
 
+
 StompProtocol::StompProtocol(ConnectionHandler& connection) : connection(connection), terminateKeyboard(false), terminateServerResponses(false) 
 , uniqueSubID(0), uniqueRecieptID(0), SubIdToChan{}, ChanToSubId{}, DisconnectId("-1")
 {
@@ -89,7 +90,8 @@ std::string StompProtocol::SendFrame(std::string messege){
             frame += stat.second; + "\n";
         }
         frame += "decription:\n" + evn.get_discription();
-        //connection.addReport(connection.getLoginedUser(), game_name, evn); //--> need to add an update to the reports
+        return frame;
+        //connection.addReport(connection.getLoginedUser(), game_name, evn); //
     }
 }
  
@@ -121,32 +123,44 @@ std::string StompProtocol::DisconnectFrame(std::string messege){
 }   
 
 std::string StompProtocol::PrintSummary(std::string messege){
-    std::string s = messege;
-    std::string delimiter = " ";
-    std::vector<std::string> messegeParts;
-    int index = 0;
-    while ((index = s.find(delimiter))!= std::string::npos) {
-        messegeParts.push_back(s.substr(0, index));
-        s.erase(0, index + delimiter.length());
-    }
+    // summary {game_name} {user} {file}
+    std::vector<std::string> answer;
+    std::vector<std::string> messegeParts = split(messege, " ");
     std::string game_name = messegeParts[1];
+    int indexOfSep = game_name.find("_");
+    std::string team_a_name = game_name.substr(0,indexOfSep);
+    std::string team_b_name = game_name.substr(indexOfSep + 1);
     std::string user = messegeParts[2];
-    std::string file = messegeParts[3];
+    std::string filePath = messegeParts[3];
+    std::vector<Event> reports = connection.getReportsByUser(user, game_name);
+    std::fstream file;
+    std::string data = team_a_name + "vs" + team_b_name;
+    data += "Game stats:\n";
+    data += "General stats:\n";
+    //need to understand how to create 'data' like the format they want in the 16-17 page of the assignment
+    //the problem is they want it to be ordered by categories: first all the general stats, than all the team a stats and
+    // than all the team b stats and so on. im not sure how to do it...
 
-    
-    // vector<Event> reports = connection.getReportsByUser(user, game_name);
-    // if (!reports.empty()) {
-    //     std::string team_a_name = reports.at(0).get_team_a_name();
-    //     std::string team_b_name = reports.at(0).get_team_b_name();
-    //     names_and_events object(team_a_name, team_b_name, reports);
-    //     parseEventsToFile(object, file);
-    //     std::cout << "Created a file" << endl;
-    // }
-    // else {
-    //     std::cout << "There are no reports from that user" << endl;
-    // }
+    if(!reports.empty()) {
+        // for(Event evn : reports){ // need to understand how to go on the reports and extract what we want in the correct order
+            write_to_file(filePath, data);
+
+        // }
+    }
+    //cout << file.rdbuf(); // suppused to print all the file in the end
 }
 
+//gets a file path and data to write, if the file exist writes the data over it, if not, create it and than write it.
+void write_to_file(const std::string& file_name, const std::string& data) {
+    std::fstream file;
+    file.open(file_name, std::ios::out | std::ios::trunc);
+    if (!file) {
+        std::cout << "File does not exist. Creating file.." << std::endl;
+        file.open(file_name, std::ios::out | std::ios::trunc);
+    }
+    file << data << std::endl;
+    file.close();
+}
 
 
 void StompProtocol::serverProcess(){
@@ -173,7 +187,7 @@ void StompProtocol::serverProcess(){
             }
 
             else if(command == "MESSEGE"){
-                vector<std::string> lines = split(responseFrame);
+                vector<std::string> lines = split(responseFrame,"\n");
                 Event newEvent = createEvent(lines);
                 std::string userNameReported = newEvent.get_userName();
                 std::string teamAName = newEvent.get_team_a_name();
@@ -181,20 +195,15 @@ void StompProtocol::serverProcess(){
                 std::string gameName = teamAName+"_"+teamBName;
                 connection.addReport(userNameReported, gameName, newEvent);
 
+                //need to print the messege to the user
             }
-
-
-
             else if(command == "ERROR"){
                 std::cout <<responseFrame << std::endl;
                 terminateKeyboard = true;
                 terminateServerResponses = true;
             }
-
         }
     }
-
-
 }
 
 Event createEvent(vector<std::string> lines){
@@ -240,23 +249,18 @@ Event createEvent(vector<std::string> lines){
                 team_a_updates.insert({header, restOfLine});
                 i++;
             }
-            
         }   
         if(lines[i].find("description:") != std::string::npos){
             description =  lines[i + 1];
         }   
-        
-
     }
-    int time;
     Event newEvent(userName, team_a_name, team_b_name, name, time, game_updates,team_a_updates,team_b_updates, description);
     return newEvent;
 }
 
-vector<std::string> StompProtocol::split(std::string msg)
+vector<std::string> StompProtocol::split(std::string msg, std::string delimiter)
 {
     int indexStart = 0;
-    std::string delimiter = "\n";
     int indexEnd = msg.find(delimiter);
     std::vector <std::string> lines;
     while (indexEnd != std::string::npos) {

@@ -43,6 +43,7 @@ public:
 
 // an object that holds the names of the teams and a vector of events, to be returned by the parseEventsFile function
 struct names_and_events {
+    names_and_events(string a_name, string b_name, vector<Event> events) : team_a_name(a_name), team_b_name(b_name), events(events) {}
     std::string team_a_name;
     std::string team_b_name;
     std::vector<Event> events;
