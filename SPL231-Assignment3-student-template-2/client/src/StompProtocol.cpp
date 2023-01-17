@@ -147,6 +147,8 @@ std::string StompProtocol::PrintSummary(std::string messege){
     // }
 }
 
+
+
 void StompProtocol::serverProcess(){
     while (!terminateServerResponses) {
         std::string responseFrame;
@@ -171,36 +173,18 @@ void StompProtocol::serverProcess(){
             }
 
             else if(command == "MESSEGE"){
-                //need to save the messege(for later summary), and print it
-                std::string delimiter = "\n";
-                std::vector <std::string> lines;
-                int indexStart = 0;
-                int indexEnd = responseFrame.find(delimiter);
-                int count = 0;
+                vector<std::string> lines = split(responseFrame);
+                Event newEvent = createEvent(lines);
+                std::string userNameReported = newEvent.get_userName();
+                std::string teamAName = newEvent.get_team_a_name();
+                std::string teamBName = newEvent.get_team_b_name();
+                std::string gameName = teamAName+"_"+teamBName;
+                connection.addReport(userNameReported, gameName, newEvent);
 
-                while (indexEnd != std::string::npos & count < 5) {
-                    lines.push_back(responseFrame.substr(indexStart, indexEnd - indexStart));
-                    indexStart = indexEnd + delimiter.length();
-                    indexEnd = responseFrame.find(delimiter, indexStart);
-                    count++;
-                }
-                int startBody = indexEnd + delimiter.length();
-                std::string subID = lines[1].substr(lines[1].find(':') + 1);
-                std:: string gameName = SubIdToChan[subID];
-                
-
-
-                // string report = frame.getBody();
-                // vector<string> lines = split(report, '\n');
-                // string userLine = lines[0];
-                // int index = userLine.find(':') + 1;
-                // string user = userLine.substr(index);
-                // Event object = parseEventReport(report);
-                // string game_name = object.get_team_a_name();
-                // game_name.append("_");
-                // game_name.append(object.get_team_b_name());
-                // connection.addReport(user, game_name, object);
             }
+
+
+
             else if(command == "ERROR"){
                 std::cout <<responseFrame << std::endl;
                 terminateKeyboard = true;
@@ -209,6 +193,78 @@ void StompProtocol::serverProcess(){
 
         }
     }
+
+
+}
+
+Event createEvent(vector<std::string> lines){
+    std::string userName;
+    std::string team_a_name;
+    std::string team_b_name;
+    std::string name;
+    int time;
+    std::map<std::string, std::string> game_updates;
+    std::map<std::string, std::string> team_a_updates;
+    std::map<std::string, std::string> team_b_updates;
+    std::string description;
+    for(int i = 0; i < lines.size(); i++){
+        if(lines[i].find("user:") != std::string::npos){
+            userName = lines[i].substr(5);
+        }
+        if(lines[i].find("team a:") != std::string::npos){
+            team_a_name = lines[i].substr(7);
+        }
+        if(lines[i].find("team b:") != std::string::npos){
+            team_b_name = lines[i].substr(7);
+        }
+        if(lines[i].find("event name:") != std::string::npos){
+            name = lines[i].substr(11);
+        }
+        if(lines[i].find("time:") != std::string::npos){
+            time = stoi(lines[i].substr(5));
+        }        
+        if(lines[i].find("team a updates:") != std::string::npos){ 
+            while(lines[i + 1] != "team b updates:" & lines[i + 1].find(":")){
+                int lineSplitIndex = lines[i + 1].find(":");
+                std::string header = lines[i + 1].substr(0,lineSplitIndex);
+                std::string restOfLine = lines[i + 1].substr(lineSplitIndex + 1);
+                team_a_updates.insert({header, restOfLine});
+                i++;
+            }
+        }   
+        if(lines[i].find("team b updates:") != std::string::npos){ 
+            while(lines[i + 1] != "description:" & lines[i + 1].find(":")){
+                int lineSplitIndex = lines[i + 1].find(":");
+                std::string header = lines[i + 1].substr(0,lineSplitIndex);
+                std::string restOfLine = lines[i + 1].substr(lineSplitIndex + 1);
+                team_a_updates.insert({header, restOfLine});
+                i++;
+            }
+            
+        }   
+        if(lines[i].find("description:") != std::string::npos){
+            description =  lines[i + 1];
+        }   
+        
+
+    }
+    int time;
+    Event newEvent(userName, team_a_name, team_b_name, name, time, game_updates,team_a_updates,team_b_updates, description);
+    return newEvent;
+}
+
+vector<std::string> StompProtocol::split(std::string msg)
+{
+    int indexStart = 0;
+    std::string delimiter = "\n";
+    int indexEnd = msg.find(delimiter);
+    std::vector <std::string> lines;
+    while (indexEnd != std::string::npos) {
+        lines.push_back(msg.substr(indexStart, indexEnd - indexStart));
+        indexStart = indexEnd + delimiter.length();
+        indexEnd = msg.find(delimiter, indexStart);
+    }
+    return lines;
 }
 
 
