@@ -50,7 +50,7 @@ public:
 
     std::string getuniqueRecieptID();
 
-    vector<std::string> StompProtocol::split(std::string msg);
+    vector<std::string> split(std::string msg);
 
     Event createEvent(vector<std::string> lines);
     
