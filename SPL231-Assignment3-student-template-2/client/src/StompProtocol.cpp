@@ -10,7 +10,8 @@ StompProtocol::StompProtocol(ConnectionHandler& connection) : connection(connect
 {
 }
 
-void StompProtocol::keyboardProcess(std::string messege){
+void StompProtocol::keyboardProcess(){
+    std::string messege;
     const short bufsize = 1024;
     char buf[bufsize];
     while (!terminateKeyboard) {
@@ -134,20 +135,40 @@ std::string StompProtocol::PrintSummary(std::string messege){
     std::string filePath = messegeParts[3];
     std::vector<Event> reports = connection.getReportsByUser(user, game_name);
     std::fstream file;
-    std::string data = team_a_name + "vs" + team_b_name;
+    //mesharsherim the data:
+    std::string data = team_a_name + "vs" + team_b_name + "\n";
     data += "Game stats:\n";
     data += "General stats:\n";
-    //need to understand how to create 'data' like the format they want in the 16-17 page of the assignment
-    //the problem is they want it to be ordered by categories: first all the general stats, than all the team a stats and
-    // than all the team b stats and so on. im not sure how to do it...
-
-    if(!reports.empty()) {
-        // for(Event evn : reports){ // need to understand how to go on the reports and extract what we want in the correct order
-            write_to_file(filePath, data);
-
-        // }
+    for(int i = 0; i < reports.size(); i++){
+        map<std::string, std::string> game_updates = reports[i].get_game_updates();
+        for(auto const& it : game_updates){
+            data += it.first + ":" + it.second + "\n";
+        }  
     }
-    //cout << file.rdbuf(); // suppused to print all the file in the end
+    data += team_a_name + "stats:\n";
+    for(int i = 0; i < reports.size(); i++){
+        map<std::string, std::string> team_a_updates = reports[i].get_team_a_updates();
+        for(auto const& it : team_a_updates){
+            data += it.first + ":" + it.second + "\n";
+        }  
+    }
+    data += team_b_name + "stats:\n";
+    for(int i = 0; i < reports.size(); i++){
+        map<std::string, std::string> team_b_updates = reports[i].get_team_b_updates();
+        for(auto const& it : team_b_updates){
+            data += it.first + ":" + it.second + "\n";
+        }  
+    }
+    data += team_a_name + "game event reports:\n";
+    for(int i = 0; i < reports.size(); i++){
+        int time = reports[i].get_time();
+        std::string name = reports[i].get_name();
+        std::string description = reports[i].get_discription();
+        data += time + "-" + name + "\n";
+        data += description + "\n";
+    }
+    write_to_file(filePath, data);
+    cout << file.rdbuf(); // suppused to print all the file in the end
 }
 
 //gets a file path and data to write, if the file exist writes the data over it, if not, create it and than write it.
@@ -196,6 +217,7 @@ void StompProtocol::serverProcess(){
                 connection.addReport(userNameReported, gameName, newEvent);
 
                 //need to print the messege to the user
+                std::cout <<responseFrame << std::endl;
             }
             else if(command == "ERROR"){
                 std::cout <<responseFrame << std::endl;
@@ -232,8 +254,18 @@ Event createEvent(vector<std::string> lines){
         if(lines[i].find("time:") != std::string::npos){
             time = stoi(lines[i].substr(5));
         }        
+        if(lines[i].find("general game updates:") != std::string::npos){
+            while(lines[i + 1] != "team a updates:" & lines[i + 1].find(":") != std::string::npos){
+                int lineSplitIndex = lines[i + 1].find(":");
+                std::string header = lines[i + 1].substr(0,lineSplitIndex);
+                std::string restOfLine = lines[i + 1].substr(lineSplitIndex + 1);
+                game_updates.insert({header, restOfLine});
+                i++;
+            }
+        }
+        
         if(lines[i].find("team a updates:") != std::string::npos){ 
-            while(lines[i + 1] != "team b updates:" & lines[i + 1].find(":")){
+            while(lines[i + 1] != "team b updates:" & lines[i + 1].find(":") != std::string::npos){
                 int lineSplitIndex = lines[i + 1].find(":");
                 std::string header = lines[i + 1].substr(0,lineSplitIndex);
                 std::string restOfLine = lines[i + 1].substr(lineSplitIndex + 1);
@@ -242,11 +274,11 @@ Event createEvent(vector<std::string> lines){
             }
         }   
         if(lines[i].find("team b updates:") != std::string::npos){ 
-            while(lines[i + 1] != "description:" & lines[i + 1].find(":")){
+            while(lines[i + 1] != "description:" & lines[i + 1].find(":") != std::string::npos){
                 int lineSplitIndex = lines[i + 1].find(":");
                 std::string header = lines[i + 1].substr(0,lineSplitIndex);
                 std::string restOfLine = lines[i + 1].substr(lineSplitIndex + 1);
-                team_a_updates.insert({header, restOfLine});
+                team_b_updates.insert({header, restOfLine});
                 i++;
             }
         }   
