@@ -49,5 +49,9 @@ public:
     std::string getuniqueSubID();
 
     std::string getuniqueRecieptID();
+
+    vector<std::string> StompProtocol::split(std::string msg);
+
+    Event createEvent(vector<std::string> lines);
     
 };

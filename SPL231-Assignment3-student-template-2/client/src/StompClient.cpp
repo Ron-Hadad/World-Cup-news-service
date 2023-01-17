@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	std::cout <<"enter a messege: ";
 	std::getline(std::cin, Messege);
 
-	while(!Messege.substr(Messege.find(" ")) != 'login'){
+	while(Messege.substr(0, Messege.find(" ")) != "login"){
 		std::cout <<"enter again: ";
 		std::getline(std::cin, Messege);
 	}

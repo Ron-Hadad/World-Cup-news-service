@@ -3,8 +3,13 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <map>
+//#include <game.h>
 
 using boost::asio::ip::tcp;
+using namespace std;
+class game;
+class Event;
 
 class ConnectionHandler {
 private:
@@ -14,6 +19,7 @@ private:
 	tcp::socket socket_;
 	std::string currentUser;
 	bool logedIn;
+	map<string, game>msgRecordsPerUser;
 
 public:
 	ConnectionHandler(std::string host, short port);
@@ -64,4 +70,7 @@ public:
 	// Close down the connection properly.
 	void close();
 
+	void addReport(string user, string game_name, Event report);
+
+	vector<Event> getReportsByUser(string user, string game_name);
 }; //class ConnectionHandler

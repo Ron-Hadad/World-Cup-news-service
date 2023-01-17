@@ -1,4 +1,6 @@
 #include "../include/ConnectionHandler.h"
+#include "../include/game.h"
+#include "../include/event.h"
 
 using boost::asio::ip::tcp;
 
@@ -9,7 +11,7 @@ using std::endl;
 using std::string;
 
 ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port),currentUser(), logedIn(false),
-io_service_(), socket_(io_service_) {}
+io_service_(), socket_(io_service_), msgRecordsPerUser() {}
 
 ConnectionHandler::~ConnectionHandler() {
 	close();
@@ -127,5 +129,27 @@ void ConnectionHandler::close() {
 		socket_.close();
 	} catch (...) {
 		std::cout << "closing failed: connection already closed" << std::endl;
+	}
+}
+
+void ConnectionHandler::addReport(string user, string game_name, Event report)
+{
+	if (msgRecordsPerUser.find(game_name) == msgRecordsPerUser.end()) {
+		game game(game_name);
+		game.addEvent(user, report);
+		msgRecordsPerUser.insert({ game_name, game });
+	}
+	else {
+		msgRecordsPerUser.find(game_name)->second.addEvent(user, report);
+	}
+}
+
+vector<Event> ConnectionHandler::getReportsByUser(string user, string game_name)
+{
+	if (msgRecordsPerUser.find(game_name) == msgRecordsPerUser.end()) {
+		return vector<Event>();
+	}
+	else {
+		return msgRecordsPerUser.find(game_name)->second.getEvents_ByUser(user);
 	}
 }
