@@ -46,6 +46,7 @@ void StompProtocol::keyboardProcess(){
             else {
                 std::cout << "Command is invalid. Enter a new command" << std::endl;
             }
+
         }
     }
 }
@@ -174,7 +175,7 @@ std::string StompProtocol::PrintSummary(std::string messege){
 }
 
 //gets a file path and data to write, if the file exist writes the data over it, if not, create it and than write it.
-void write_to_file(const std::string& file_name, const std::string& data) {
+void StompProtocol::write_to_file(const std::string& file_name, const std::string& data) {
     std::fstream file;
     file.open(file_name, std::ios::out | std::ios::trunc);
     if (!file) {
@@ -196,6 +197,9 @@ void StompProtocol::serverProcess(){
             break;
         }
         else{
+            //to see the server responce:
+            std::cout << responseFrame << std::endl;
+            
             std::string command = responseFrame.substr(0, responseFrame.find('\n'));
             if(command == "RECEIPT"){
                 if(responseFrame.substr(responseFrame.find(":") + 1) == DisconnectId){
@@ -230,7 +234,7 @@ void StompProtocol::serverProcess(){
     }
 }
 
-Event createEvent(vector<std::string> lines){
+Event StompProtocol::createEvent(vector<std::string> lines){
     std::string userName;
     std::string team_a_name;
     std::string team_b_name;
