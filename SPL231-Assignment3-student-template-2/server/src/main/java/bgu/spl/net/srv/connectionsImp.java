@@ -34,16 +34,6 @@ public class connectionsImp<T> implements Connections<T> {
    */
   public HashMap<String, ArrayList<ConnectionHandler<T>>> channNameToSubConnHand;
 
-  // making it a singlton:
-  //private static connectionsImp<String> connectionsInstance = null;
-
-  // public static connectionsImp<String> getInstance() {
-  //   if (connectionsInstance == null) {
-  //     connectionsInstance = new connectionsImp<String>();
-  //   }
-  //   return connectionsInstance;
-  // }
-
   public connectionsImp() {
     freeToUseConnId = 0;
     freeToUseMessegeId = 0;
@@ -104,7 +94,14 @@ public class connectionsImp<T> implements Connections<T> {
     // adding to the user:
     getUser(userName).newSub(chan, SubId);
     // adding to the hash map of the subscribed handllers to the channel:
-    channNameToSubConnHand.get(chan).add(getConnHand(connId));
+    if(channelExist(chan)){//if the channek exist:
+      channNameToSubConnHand.get(chan).add(getConnHand(connId));
+    }
+    else{
+      channNameToSubConnHand.put(chan, new ArrayList<ConnectionHandler<T>>());
+      channNameToSubConnHand.get(chan).add(getConnHand(connId));
+    }
+    
   }
 
   public void unSub(String userName, String SubId, int connId) {
