@@ -26,9 +26,10 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         this.connections = connections;
         // initialising the connectionId and giving the protocol the "connection"
         // environment:
-        protocol.start(connectionsImp.getFreeToUseConnId(), connections);
+        int connectionId = connectionsImp.getFreeToUseConnId();
+        protocol.start(connectionId, connections);
         // adding the new connection to the connection id's hash map:
-        connections.addConnId(connectionsImp.getFreeToUseConnId(), this);
+        connections.addConnId(connectionId, this);
     }
 
     @Override

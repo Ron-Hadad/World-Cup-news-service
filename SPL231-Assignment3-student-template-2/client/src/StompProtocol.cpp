@@ -61,7 +61,7 @@ std::string StompProtocol::getuniqueRecieptID(){
 }
 
 std::string StompProtocol::SendFrame(std::string messege){
-    std::string location = "/data" + messege.substr(messege.find(' ') + 1);
+    std::string location = "/data/" + messege.substr(messege.find(' ') + 1);
     std::ifstream ifile;
     ifile.open(location);
     names_and_events events = parseEventsFile(location);
@@ -106,7 +106,7 @@ std::string StompProtocol::SubscribeFrame(std::string messege){
 }
 
 std::string StompProtocol::UnsubscribeFrame(std::string messege){
-    std::string frame = "UBSUBSCRIBE\n";
+    std::string frame = "UNSUBSCRIBE\n";
     std::string gameName = messege.substr(messege.find(' ') + 1);
     frame += "id:" + ChanToSubId[gameName] +"\n";
     frame += "reciept:" + getuniqueRecieptID() +"\n\n\0";
