@@ -29,10 +29,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
-    // int usernameIndex = Messege.find(" ", Messege.find("host:"));
-    // int passwordIndex = Messege.find(' ', usernameIndex + 1);
-	// std::string currentUser = Messege.substr(usernameIndex + 1,passwordIndex + 1);
-
     size_t pos1 = Messege.find(" ", Messege.find(" ") + 1);
     // Find the position of the fourth word
     size_t pos2 = Messege.find(" ", pos1 + 1);
