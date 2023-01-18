@@ -20,7 +20,13 @@ private:
     std::map <std::string,std::string> SubIdToChan;
     std::map <std::string,std::string> ChanToSubId;
     std::string DisconnectId;
+<<<<<<< HEAD
     
+=======
+
+
+
+>>>>>>> 70afea57cade1bc4dec90886a21ad66fdbc9e7be
     //creating a send frame to send to the server
     std::string SendFrame(std::string messege);
 
