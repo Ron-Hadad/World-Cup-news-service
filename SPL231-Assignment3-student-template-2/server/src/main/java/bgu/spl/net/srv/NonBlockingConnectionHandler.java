@@ -33,7 +33,12 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         this.protocol = protocol;
         this.reactor = reactor;
         this.connections = connections;
-        protocol.start(connectionsImp.getFreeToUseConnId(), connections);
+        // initialising the connectionId and giving the protocol the "connection"
+        // environment:
+        int connectionId = connectionsImp.getFreeToUseConnId();
+        protocol.start(connectionId, connections);
+        // adding the new connection to the connection id's hash map:
+        connections.addConnId(connectionId, this);
     }
 
     public Runnable continueRead() {

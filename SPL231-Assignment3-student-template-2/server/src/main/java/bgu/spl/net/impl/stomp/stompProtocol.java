@@ -27,18 +27,23 @@ public class stompProtocol implements StompMessagingProtocol<String> {
         System.out.println("messege from client: " + msg);
         String[] msgSpliteByLines = msg.split("\n", 0);
         String stompCommand = msgSpliteByLines[0];
-        //System.out.println("stompCommand: " + stompCommand);
+        System.out.println("stompCommand: " + stompCommand);
         switch (stompCommand) {
             case "CONNECT":
                 connectProtocol(msgSpliteByLines, msg);
+                break;
             case "SEND":
                 sendProtocol(msgSpliteByLines, msg);
+                break;
             case "SUBSCRIBE":
                 subscribeProtocol(msgSpliteByLines, msg);
+                break;
             case "UNSUBSCRIBE":
                 unsubscribeProtocol(msgSpliteByLines, msg);
+                break;
             case "DISCONNECT":
                 disconnectProtocol(msgSpliteByLines, msg);
+                break;
         }
         return null;
     }
@@ -74,7 +79,7 @@ public class stompProtocol implements StompMessagingProtocol<String> {
                 connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
                 sendReceiptIfNeeded(givenReceiptId);
             } else {// wrong password
-                sendError("wrong password. ", msg, givenReceiptId);
+                sendError("wrong password. the correct password: " + connections.getUser(givenUserName).getPassword(), msg, givenReceiptId);
             }
         } else {// userName doesnt exist
             connections.addUser(givenUserName, givenPasscode);
