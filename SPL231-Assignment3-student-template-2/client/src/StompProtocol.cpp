@@ -60,10 +60,6 @@ std::string StompProtocol::getuniqueRecieptID(){
 }
 
 std::string StompProtocol::SendFrame(std::string messege){
-    //recieve : report {file}
-    //need to: (1)read the file
-    //(2) Save each event on the client as a game update reported by the current logged-in user
-    //(3) SEND frame 
     std::string location = "/data" + messege.substr(messege.find(' ') + 1);
     std::ifstream ifile;
     ifile.open(location);
