@@ -120,6 +120,7 @@ bool ConnectionHandler::getFrame(std::string &frame) {
 }
 
 bool ConnectionHandler::sendFrame(std::string & frame) {
+	std::cout << "messege sent to the server: " + frame << std::endl;
 	return sendFrameAscii(frame, '\0');
 }
 
