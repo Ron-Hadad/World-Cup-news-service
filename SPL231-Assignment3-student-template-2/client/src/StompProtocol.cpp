@@ -47,6 +47,7 @@ void StompProtocol::keyboardProcess(){
             else {
                 std::cout << "Command is invalid. Enter a new command:" << std::endl;
             }
+
         }
     }
 }
@@ -60,10 +61,6 @@ std::string StompProtocol::getuniqueRecieptID(){
 }
 
 std::string StompProtocol::SendFrame(std::string messege){
-    //recieve : report {file}
-    //need to: (1)read the file
-    //(2) Save each event on the client as a game update reported by the current logged-in user
-    //(3) SEND frame 
     std::string location = "/data" + messege.substr(messege.find(' ') + 1);
     std::ifstream ifile;
     ifile.open(location);
@@ -197,6 +194,9 @@ void StompProtocol::serverProcess(){
             break;
         }
         else{
+            //to see the server responce:
+            std::cout << responseFrame << std::endl;
+            
             std::string command = responseFrame.substr(0, responseFrame.find('\n'));
             if(command == "RECEIPT"){
                 if(responseFrame.substr(responseFrame.find(":") + 1) == DisconnectId){
