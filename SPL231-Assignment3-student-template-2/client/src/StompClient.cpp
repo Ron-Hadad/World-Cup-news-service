@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
-    int usernameIndex = Messege.find(" ", Messege.find("host:"));
-    int passwordIndex = Messege.find(' ', usernameIndex + 1);
+    int usernameIndex = Messege.find(" ", Messege.find(port));
+    int passwordIndex = Messege.find(" ", usernameIndex + 1);
 	std::string currentUser = Messege.substr(usernameIndex + 1,passwordIndex + 1);
     frame+= "login: " + currentUser + "\n";
     frame+= "passcode: " +  Messege.substr(passwordIndex) +"\n\n" + "\0";

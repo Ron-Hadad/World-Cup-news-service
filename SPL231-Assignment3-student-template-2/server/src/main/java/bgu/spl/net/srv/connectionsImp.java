@@ -43,6 +43,7 @@ public class connectionsImp<T> implements Connections<T> {
   }
 
   public boolean send(int connectionId, T msg) {
+    System.out.println("try to sent a messege back to the client");
     connIdToConnHand.get(connectionId).send(msg);
     return false;
   }

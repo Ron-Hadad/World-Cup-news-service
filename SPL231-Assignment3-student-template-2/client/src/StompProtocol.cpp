@@ -101,7 +101,7 @@ std::string StompProtocol::SendFrame(std::string messege){
 std::string StompProtocol::SubscribeFrame(std::string messege){
     std::string frame = "SUBSCRIBE\ndestination:/";
     std::string gameName = messege.substr(messege.find(' ') + 1);
-    frame += gameName + "id:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    frame += gameName + "\nid:" + StompProtocol::getuniqueSubID() + "\n\n\0";
     ChanToSubId[gameName] =  StompProtocol::getuniqueSubID();
     SubIdToChan[StompProtocol::getuniqueSubID()] = gameName;
     uniqueSubID++;
