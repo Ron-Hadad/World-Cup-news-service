@@ -78,17 +78,17 @@ std::string StompProtocol::SendFrame(std::string messege){
         frame += "general game updates:\n";
         for (auto& stat : evn.get_game_updates()) {
             frame += stat.first +":";
-            frame += stat.second; + "\n";
+            frame += stat.second + "\n";
         }
         frame += "team a updates:\n";
         for (auto& stat : evn.get_team_a_updates()) {
             frame += stat.first +":";
-            frame += stat.second; + "\n";
+            frame += stat.second + "\n";
         }
         frame += "team b updates:\n";
         for (auto& stat : evn.get_team_b_updates()) {
             frame += stat.first +":";
-            frame += stat.second; + "\n";
+            frame += stat.second + "\n";
         }
         frame += "decription:\n" + evn.get_discription();
         return frame;
@@ -139,28 +139,28 @@ std::string StompProtocol::PrintSummary(std::string messege){
     std::string data = team_a_name + "vs" + team_b_name + "\n";
     data += "Game stats:\n";
     data += "General stats:\n";
-    for(int i = 0; i < reports.size(); i++){
+    for(unsigned int i = 0; i < reports.size(); i++){
         map<std::string, std::string> game_updates = reports[i].get_game_updates();
         for(auto const& it : game_updates){
             data += it.first + ":" + it.second + "\n";
         }  
     }
     data += team_a_name + "stats:\n";
-    for(int i = 0; i < reports.size(); i++){
+    for(unsigned int i = 0; i < reports.size(); i++){
         map<std::string, std::string> team_a_updates = reports[i].get_team_a_updates();
         for(auto const& it : team_a_updates){
             data += it.first + ":" + it.second + "\n";
         }  
     }
     data += team_b_name + "stats:\n";
-    for(int i = 0; i < reports.size(); i++){
+    for(unsigned int i = 0; i < reports.size(); i++){
         map<std::string, std::string> team_b_updates = reports[i].get_team_b_updates();
         for(auto const& it : team_b_updates){
             data += it.first + ":" + it.second + "\n";
         }  
     }
     data += team_a_name + "game event reports:\n";
-    for(int i = 0; i < reports.size(); i++){
+    for(unsigned int i = 0; i < reports.size(); i++){
         int time = reports[i].get_time();
         std::string name = reports[i].get_name();
         std::string description = reports[i].get_discription();

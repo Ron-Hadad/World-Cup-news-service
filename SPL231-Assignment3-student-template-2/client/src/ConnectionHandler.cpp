@@ -10,7 +10,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port),currentUser(), logedIn(false),
+ConnectionHandler::ConnectionHandler(std::string host, short port) : host_(host), port_(port),currentUser(), logedIn(false),
 io_service_(), socket_(io_service_), msgRecordsPerUser() {}
 
 ConnectionHandler::~ConnectionHandler() {
