@@ -43,7 +43,7 @@ public class connectionsImp<T> implements Connections<T> {
   }
 
   public boolean send(int connectionId, T msg) {
-    System.out.println("try to sent a messege back to the client");
+    System.out.println("try to sent a messege back to the client :" + msg);
     connIdToConnHand.get(connectionId).send(msg);
     return false;
   }
@@ -85,6 +85,7 @@ public class connectionsImp<T> implements Connections<T> {
 
   public void addConnId(Integer connectionId, ConnectionHandler<T> connectionHandler) {
     connIdToConnHand.put(connectionId, connectionHandler);
+    System.out.println("the pair : connectionId : " + connectionId + ", connectionHandler : " + connectionHandler + "was added to connIdToConnHand.");
   }
 
   public boolean channelExist(String chan) {
