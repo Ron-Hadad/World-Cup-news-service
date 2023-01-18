@@ -24,9 +24,11 @@ public class stompProtocol implements StompMessagingProtocol<String> {
 
     @Override
     public String process(String msg) {
-        System.out.println("messege from client: " + msg);
-        String[] msgSpliteByLines = msg.split("/n", 0);
+        //System.out.println("messege from client: " + msg);
+        String[] msgSpliteByLines = msg.split("\n");
+        //System.out.println("msgSpliteByLines: " + msgSpliteByLines);
         String stompCommand = msgSpliteByLines[0];
+        //System.out.println("stompCommand: " + stompCommand);
         switch (stompCommand) {
             case "CONNECT":
                 connectProtocol(msgSpliteByLines, msg);
@@ -43,6 +45,7 @@ public class stompProtocol implements StompMessagingProtocol<String> {
     }
 
     private void connectProtocol(String[] msgSpliteByLines, String msg) {
+        System.out.println("in connectProtocol fun");
         // collecting info:
         String givenUserName = null;
         String givenPasscode = null;
@@ -231,4 +234,5 @@ public class stompProtocol implements StompMessagingProtocol<String> {
     public boolean shouldTerminate() {
         return shouldTerminate;
     }
+
 }
