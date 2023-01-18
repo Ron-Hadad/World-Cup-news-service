@@ -15,10 +15,10 @@ class ConnectionHandler {
 private:
 	const std::string host_;
 	const short port_;
-	boost::asio::io_service io_service_;   // Provides core I/O functionality
-	tcp::socket socket_;
 	std::string currentUser;
 	bool logedIn;
+	boost::asio::io_service io_service_;   // Provides core I/O functionality
+	tcp::socket socket_;
 	map<string, game>msgRecordsPerUser;
 
 public:
