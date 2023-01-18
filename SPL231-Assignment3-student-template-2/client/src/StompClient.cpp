@@ -28,18 +28,6 @@ int main(int argc, char *argv[]) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
-    //std::vector<std::string> MessegeParts = split(Messege, " ");
-        //vector<std::string> split(std::string msg, std::string delimiter){
-    int indexStart = 0;
-    unsigned indexEnd = Messege.find(" ");
-    std::vector <std::string> MessegeParts;
-    while (indexEnd != std::string::npos) {
-        MessegeParts.push_back(Messege.substr(indexStart, indexEnd - indexStart));
-        indexStart = indexEnd + 1;
-        indexEnd = Messege.find(" ", indexStart);
-    }
-    // return lines;
-    // }
 	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
     size_t pos1 = Messege.find(" ", Messege.find(" ") + 1);
     // Find the position of the fourth word
