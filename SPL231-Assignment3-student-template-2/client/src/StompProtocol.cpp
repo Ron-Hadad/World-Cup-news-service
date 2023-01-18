@@ -67,7 +67,7 @@ std::string StompProtocol::SendFrame(std::string messege){
     names_and_events events = parseEventsFile(location);
     std::string game_name = events.team_a_name + "_" + events.team_b_name;
     std::string frame = "SEND\ndestination:/" + game_name;
-    frame += "user:" + connection.getLogedInUser();
+    frame += "\nuser:" + connection.getLogedInUser();
     for (Event evn : events.events) {
         frame += "team a:" + evn.get_team_a_name() + "\n";
         frame += "team b:" + evn.get_team_b_name() + "\n";
@@ -188,13 +188,14 @@ void StompProtocol::serverProcess(){
     while (!terminateServerResponses) {
         std::string responseFrame;
         bool Answered = connection.getFrame(responseFrame); 
+        std::cout << Answered << std::endl;
         if (!Answered) { //If the server connection was closed and no response receieved - close the client
             std::cout << "Disconnected. Exiting...\n" << std::endl;
             terminateKeyboard = true;
             break;
         }
-        else{
-            //to see the server responce:
+        if(Answered){
+            //to see the server response:
             std::cout << responseFrame << std::endl;
             
             std::string command = responseFrame.substr(0, responseFrame.find('\n'));
