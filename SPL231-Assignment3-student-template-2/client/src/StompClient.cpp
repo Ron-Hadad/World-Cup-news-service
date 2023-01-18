@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
     frame+= "passcode: " +  password +"\n\n" + "\0";
 
 	connectionHandler.connectUser(currentUser);
+    //std::cout << "messege sent to the server: " + frame << std::endl;
     connectionHandler.sendFrame(frame);
     StompProtocol protocol(connectionHandler);
     std::thread serverThread(&StompProtocol::serverProcess, &protocol); 
