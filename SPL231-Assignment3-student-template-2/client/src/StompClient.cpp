@@ -29,11 +29,20 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
-    int usernameIndex = Messege.find(" ", Messege.find("host:"));
-    int passwordIndex = Messege.find(' ', usernameIndex + 1);
-	std::string currentUser = Messege.substr(usernameIndex + 1,passwordIndex + 1);
+    // int usernameIndex = Messege.find(" ", Messege.find("host:"));
+    // int passwordIndex = Messege.find(' ', usernameIndex + 1);
+	// std::string currentUser = Messege.substr(usernameIndex + 1,passwordIndex + 1);
+
+    size_t pos1 = Messege.find(" ", Messege.find(" ") + 1);
+    // Find the position of the fourth word
+    size_t pos2 = Messege.find(" ", pos1 + 1);
+    // Extract the third word
+    std::string currentUser = Messege.substr(pos1 + 1, pos2 - pos1 - 1);
+    // Extract the fourth word
+    std::string password = Messege.substr(pos2 + 1);
+
     frame+= "login: " + currentUser + "\n";
-    frame+= "passcode: " +  Messege.substr(passwordIndex) +"\n\n" + "\0";
+    frame+= "passcode: " +  password +"\n\n" + "\0";
 
 	connectionHandler.connectUser(currentUser);
     connectionHandler.sendFrame(frame);

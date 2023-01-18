@@ -15,6 +15,7 @@ void StompProtocol::keyboardProcess(){
     const short bufsize = 1024;
     char buf[bufsize];
     while (!terminateKeyboard) {
+        std::cout <<"enter a messege: ";
         if(std::cin.getline(buf, bufsize)){ //Getting an input from the keyboard
             std::string messege(buf);
             if (terminateKeyboard) {
@@ -22,9 +23,9 @@ void StompProtocol::keyboardProcess(){
             }
             std::string command = messege.substr(0, messege.find(' '));
             if(command == "login"){
-            std::cout << "The client is already logged in, log out before trying again" << std::endl << std::endl;
+            std::cout << "The client is already logged in, log out before trying again" << std::endl;
             }
-            if(command == "join"){
+            else if(command == "join"){
                 std::string frame = SubscribeFrame(messege);
                 connection.sendFrame(frame);
             }
@@ -44,7 +45,7 @@ void StompProtocol::keyboardProcess(){
                 connection.sendFrame(frame);
             }
             else {
-                std::cout << "Command is invalid. Enter a new command" << std::endl;
+                std::cout << "Command is invalid. Enter a new command:" << std::endl;
             }
         }
     }
@@ -100,7 +101,7 @@ std::string StompProtocol::SendFrame(std::string messege){
 std::string StompProtocol::SubscribeFrame(std::string messege){
     std::string frame = "SUBSCRIBE\ndestination:/";
     std::string gameName = messege.substr(messege.find(' ') + 1);
-    frame += gameName + "id:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    frame += gameName + "\nid:" + StompProtocol::getuniqueSubID() + "\n\n\0";
     ChanToSubId[gameName] =  StompProtocol::getuniqueSubID();
     SubIdToChan[StompProtocol::getuniqueSubID()] = gameName;
     uniqueSubID++;
@@ -108,16 +109,16 @@ std::string StompProtocol::SubscribeFrame(std::string messege){
 }
 
 std::string StompProtocol::UnsubscribeFrame(std::string messege){
-    std::string frame = "UBSUBSCRIBE\n/";
+    std::string frame = "UBSUBSCRIBE\n";
     std::string gameName = messege.substr(messege.find(' ') + 1);
-    frame += "id:" + ChanToSubId[gameName];
+    frame += "id:" + ChanToSubId[gameName] +"\n";
     frame += "reciept:" + getuniqueRecieptID() +"\n\n\0";
     uniqueRecieptID++;
     return frame;
 }
 
 std::string StompProtocol::DisconnectFrame(std::string messege){
-    std::string frame = "DISCONNECT\nreciept:/" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
+    std::string frame = "DISCONNECT\nreciept:" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
     DisconnectId = StompProtocol::getuniqueRecieptID();
     uniqueRecieptID++;
     terminateKeyboard = true;
