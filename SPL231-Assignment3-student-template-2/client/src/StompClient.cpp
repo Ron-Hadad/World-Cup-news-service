@@ -28,28 +28,20 @@ int main(int argc, char *argv[]) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
-    //std::vector<std::string> MessegeParts = split(Messege, " ");
-        //vector<std::string> split(std::string msg, std::string delimiter){
-    int indexStart = 0;
-    unsigned indexEnd = Messege.find(" ");
-    std::vector <std::string> MessegeParts;
-    while (indexEnd != std::string::npos) {
-        MessegeParts.push_back(Messege.substr(indexStart, indexEnd - indexStart));
-        indexStart = indexEnd + 1;
-        indexEnd = Messege.find(" ", indexStart);
-    }
-    // return lines;
-    // }
 	std::string frame = "CONNECT\naccept-version:1.2\nhost:stomp.cs.bgu.ac.il\n" ;
-    // int usernameIndex = Messege.find_first_of("7777") + 4;
-    // int passwordIndex = Messege.find_last_of(" ");
-	// std::string currentUser = Messege.substr(usernameIndex + 1, passwordIndex - usernameIndex);
-    std::string currentUser = MessegeParts[2];
+    size_t pos1 = Messege.find(" ", Messege.find(" ") + 1);
+    // Find the position of the fourth word
+    size_t pos2 = Messege.find(" ", pos1 + 1);
+    // Extract the third word
+    std::string currentUser = Messege.substr(pos1 + 1, pos2 - pos1 - 1);
+    // Extract the fourth word
+    std::string password = Messege.substr(pos2 + 1);
+
     frame+= "login: " + currentUser + "\n";
-    //frame+= "passcode: " +  Messege.substr(passwordIndex) +"\n\n" + "\0";
-    frame+= "passcode: " + MessegeParts[3] + "\n\n";
+    frame+= "passcode: " +  password +"\n\n" + "\0";
 
 	connectionHandler.connectUser(currentUser);
+    //std::cout << "messege sent to the server: " + frame << std::endl;
     connectionHandler.sendFrame(frame);
     StompProtocol protocol(connectionHandler);
     std::thread serverThread(&StompProtocol::serverProcess, &protocol); 
