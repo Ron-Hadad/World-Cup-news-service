@@ -24,6 +24,7 @@ public class stompProtocol implements StompMessagingProtocol<String> {
 
     @Override
     public String process(String msg) {
+        System.out.println("messege from client: " + msg);
         String[] msgSpliteByLines = msg.split("/n", 0);
         String stompCommand = msgSpliteByLines[0];
         switch (stompCommand) {
