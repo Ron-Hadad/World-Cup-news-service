@@ -67,7 +67,7 @@ std::string StompProtocol::SendFrame(std::string messege){
     names_and_events events = parseEventsFile(location);
     std::string game_name = events.team_a_name + "_" + events.team_b_name;
     std::string frame = "SEND\ndestination:/" + game_name;
-    frame += "\nuser:" + connection.getLogedInUser();
+    frame += "\n\nuser:" + connection.getLogedInUser() +"\n";
     for (Event evn : events.events) {
         frame += "team a:" + evn.get_team_a_name() + "\n";
         frame += "team b:" + evn.get_team_b_name() + "\n";

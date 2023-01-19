@@ -79,9 +79,9 @@ public class stompProtocol implements StompMessagingProtocol<String> {
                 connections.send(connectionId, "CONNECTED\nvertion:1.2\n");
                 sendReceiptIfNeeded(givenReceiptId);
             } else {// wrong password
-                sendError("wrong password. the correct password: " + connections.getUser(givenUserName).getPassword(), msg, givenReceiptId);
+                sendError("wrong password. the correct password:" + connections.getUser(givenUserName).getPassword(), msg, givenReceiptId);
             }
-        } else {// userName doesnt exist
+        } else { // userName doesnt exist
             connections.addUser(givenUserName, givenPasscode);
             userName = givenUserName;
             connections.send(connectionId, "CONNECTED\nvertion:1.2\n");

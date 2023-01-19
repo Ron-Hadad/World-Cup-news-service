@@ -37,11 +37,10 @@ int main(int argc, char *argv[]) {
     // Extract the fourth word
     std::string password = Messege.substr(pos2 + 1);
 
-    frame+= "login: " + currentUser + "\n";
-    frame+= "passcode: " +  password +"\n\n" + "\0";
+    frame+= "login:" + currentUser + "\n";
+    frame+= "passcode:" +  password +"\n\n" + "\0";
 
 	connectionHandler.connectUser(currentUser);
-    //std::cout << "messege sent to the server: " + frame << std::endl;
     connectionHandler.sendFrame(frame);
     StompProtocol protocol(connectionHandler);
     std::thread serverThread(&StompProtocol::serverProcess, &protocol); 
