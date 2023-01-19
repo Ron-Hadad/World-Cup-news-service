@@ -24,14 +24,8 @@ public class stompProtocol implements StompMessagingProtocol<String> {
 
     @Override
     public String process(String msg) {
-<<<<<<< HEAD
         System.out.println("messege from client: " + msg);
         String[] msgSpliteByLines = msg.split("\n", 0);
-=======
-        //System.out.println("messege from client: " + msg);
-        String[] msgSpliteByLines = msg.split("\n");
-        //System.out.println("msgSpliteByLines: " + msgSpliteByLines);
->>>>>>> ab86ecfe1cb8e309679a6fd6089db7ad03571ead
         String stompCommand = msgSpliteByLines[0];
         System.out.println("stompCommand: " + stompCommand);
         switch (stompCommand) {
@@ -98,7 +92,7 @@ public class stompProtocol implements StompMessagingProtocol<String> {
     private void sendProtocol(String[] msgSpliteByLines, String msg) {
         // collecting info:
         String givenDestination = null;
-        String messageToDestribute = null;
+        String messageToDestribute = "";
         String givenReceiptId = null;
         for (String line : msgSpliteByLines) {
             if (line.startsWith("destination:/")) {
@@ -119,8 +113,8 @@ public class stompProtocol implements StompMessagingProtocol<String> {
                 if (!connections.channelExist(givenDestination)) {// case the channel given doesnt exist
                     sendError("destination does'nt exist!\ndestination given:", msg, givenReceiptId);
                 } else {
-                    if (connections.getUser(userName).userSubToChann(givenDestination)) {// if the user isnt subscribed to that cannel
-                        sendError("your not subscribe to that channel!", msg, givenReceiptId);
+                    if (!connections.getUser(userName).userSubToChann(givenDestination)) {// if the user isnt subscribed to that cannel
+                        sendError("your not subscribe to the channel :" + givenDestination + ". the channels the user subscribed to are:" + connections.getUser(userName).subIdToChan.toString() , msg, givenReceiptId);
                     } else {// all good, we want to sent the messege
                         connections.send(givenDestination,
                                 "MESSEGE\nsubscription:  \nmessege-id:" + connections.getFreeToUseMessegeId()
@@ -229,7 +223,7 @@ public class stompProtocol implements StompMessagingProtocol<String> {
         if (receiptNum != null) {
             receiptLine = "receipt-id:" + receiptNum;
         }
-        String msg = String.format("ERROR\nmessage: %s \n ---- we recieved: %s \n ---- %s", errorSpecification,
+        String msg = String.format("ERROR\nthe problem: %s \n ----------------- \n frame recieved: %s \n ----------------\n %s", errorSpecification,
                 wrongArgument, receiptLine);
         connections.send(connectionId, msg);
     }

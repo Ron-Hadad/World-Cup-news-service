@@ -61,13 +61,17 @@ std::string StompProtocol::getuniqueRecieptID(){
 }
 
 std::string StompProtocol::SendFrame(std::string messege){
-    std::string location = "/data/" + messege.substr(messege.find(' ') + 1);
+    std::string location = "data/" + messege.substr(messege.find(' ') + 1);
+    //std::cout << "the location given : " + location << std::endl;
     std::ifstream ifile;
     ifile.open(location);
+    if (!ifile) {
+        cout << "File doesn't exist" << endl;
+    }
     names_and_events events = parseEventsFile(location);
     std::string game_name = events.team_a_name + "_" + events.team_b_name;
-    std::string frame = "SEND\ndestination:/" + game_name;
-    frame += "\nuser:" + connection.getLogedInUser();
+    std::string frame = "SEND\ndestination:/" + game_name + "\n";
+    frame += "user:" + connection.getLogedInUser() + "\n";
     for (Event evn : events.events) {
         frame += "team a:" + evn.get_team_a_name() + "\n";
         frame += "team b:" + evn.get_team_b_name() + "\n";
@@ -115,7 +119,7 @@ std::string StompProtocol::UnsubscribeFrame(std::string messege){
 }
 
 std::string StompProtocol::DisconnectFrame(std::string messege){
-    std::string frame = "DISCONNECT\nreciept:" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
+    std::string frame = "DISCONNECT\nreceipt-id:" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
     DisconnectId = StompProtocol::getuniqueRecieptID();
     uniqueRecieptID++;
     terminateKeyboard = true;
@@ -194,10 +198,10 @@ void StompProtocol::serverProcess(){
             terminateKeyboard = true;
             break;
         }
-        if(Answered){
-            //to see the server response:
+        else{
+            //to see the server responce:
+            std::cout << "the frame recieved from server: " << std::endl;
             std::cout << responseFrame << std::endl;
-            
             std::string command = responseFrame.substr(0, responseFrame.find('\n'));
             if(command == "RECEIPT"){
                 if(responseFrame.substr(responseFrame.find(":") + 1) == DisconnectId){
@@ -221,10 +225,10 @@ void StompProtocol::serverProcess(){
                 connection.addReport(userNameReported, gameName, newEvent);
 
                 //need to print the messege to the user
-                std::cout <<responseFrame << std::endl;
+                //std::cout <<responseFrame << std::endl;
             }
             else if(command == "ERROR"){
-                std::cout <<responseFrame << std::endl;
+                //std::cout <<responseFrame << std::endl;
                 terminateKeyboard = true;
                 terminateServerResponses = true;
             }
