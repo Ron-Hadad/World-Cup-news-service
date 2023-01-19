@@ -192,6 +192,7 @@ void StompProtocol::serverProcess(){
     while (!terminateServerResponses) {
         std::string responseFrame;
         bool Answered = connection.getFrame(responseFrame); 
+        std::cout << Answered << std::endl;
         if (!Answered) { //If the server connection was closed and no response receieved - close the client
             std::cout << "Disconnected. Exiting...\n" << std::endl;
             terminateKeyboard = true;

@@ -43,12 +43,13 @@ public class connectionsImp<T> implements Connections<T> {
   }
 
   public boolean send(int connectionId, T msg) {
-    System.out.println("try to sent a messege back to the client :" + msg);
+    System.out.println("try to sent a messege back to the client" + msg);
     connIdToConnHand.get(connectionId).send(msg);
     return false;
   }
 
   public void send(String channel, T msg) {
+    System.out.println("try to sent a messege back to the client");
     ArrayList<ConnectionHandler<T>> subConnHan = channNameToSubConnHand.get(channel);
     for (ConnectionHandler<T> current : subConnHan) {
       current.send(msg);
