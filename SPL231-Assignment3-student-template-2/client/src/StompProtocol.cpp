@@ -15,8 +15,8 @@ void StompProtocol::keyboardProcess(){
     const short bufsize = 1024;
     char buf[bufsize];
     while (!terminateKeyboard) {
-        std::cout <<"enter a messege: ";
-        if(std::cin.getline(buf, bufsize)){ //Getting an input from the keyboard
+        std::cout <<"enter a messege: " <<std::endl;
+        if(std::cin.getline(buf, bufsize) ){ //Getting an input from the keyboard
             std::string messege(buf);
             if (terminateKeyboard) {
                 continue;
@@ -92,9 +92,7 @@ std::string StompProtocol::SendFrame(std::string messege){
             frame += stat.first +":";
             frame += stat.second + "\n";
         }
-        frame += "decription:\n" + evn.get_discription();
-        
-        //connection.addReport(connection.getLoginedUser(), game_name, evn); //
+        frame += "decription:\n" + evn.get_discription() +"\n\0";
     }
     return frame;
 }
@@ -102,7 +100,8 @@ std::string StompProtocol::SendFrame(std::string messege){
 std::string StompProtocol::SubscribeFrame(std::string messege){
     std::string frame = "SUBSCRIBE\ndestination:/";
     std::string gameName = messege.substr(messege.find(' ') + 1);
-    frame += gameName + "\nid:" + StompProtocol::getuniqueSubID() + "\n\n\0";
+    frame += gameName + "\nid:" + StompProtocol::getuniqueSubID() + "\nreceipt-id:" + StompProtocol::getuniqueRecieptID() + "\n\n\0";
+    uniqueRecieptID++;
     ChanToSubId[gameName] =  StompProtocol::getuniqueSubID();
     SubIdToChan[StompProtocol::getuniqueSubID()] = gameName;
     uniqueSubID++;
@@ -171,7 +170,7 @@ std::string StompProtocol::PrintSummary(std::string messege){
         data += description + "\n";
     }
     write_to_file(filePath, data);
-    cout << file.rdbuf(); // suppused to print all the file in the end
+    std::cout << file.rdbuf() << std::endl; // suppused to print all the file in the end
     return data;
 }
 

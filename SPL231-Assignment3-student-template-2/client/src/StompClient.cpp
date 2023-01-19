@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     // Extract the fourth word
     std::string password = Messege.substr(pos2 + 1);
 
-    frame+= "login: " + currentUser + "\n";
+    frame+= "login:" + currentUser + "\n";
     frame+= "passcode:" +  password +"\n\n" + "\0";
 
 	connectionHandler.connectUser(currentUser);
