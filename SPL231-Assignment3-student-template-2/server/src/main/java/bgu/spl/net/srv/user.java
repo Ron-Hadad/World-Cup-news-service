@@ -25,6 +25,7 @@ public class user {
   public void newSub(String chan, String subscribeId) {
     channToSubId.put(chan, subscribeId);
     subIdToChan.put(subscribeId, chan);
+    System.out.print("the pair :" + chan + "," + subscribeId + "was added to the user subscribe records");
   }
 
   public void unSub(String subscribeId) {
