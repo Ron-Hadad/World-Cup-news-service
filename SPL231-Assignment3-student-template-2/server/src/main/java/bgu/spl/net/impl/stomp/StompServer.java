@@ -17,8 +17,8 @@ public class StompServer {
         // Server.reactor(
         // Runtime.getRuntime().availableProcessors(),
         // 7777, //port
-        // () -> new EchoProtocol<>(), //protocol factory
-        // LineMessageEncoderDecoder::new //message encoder decoder factory
+        // () -> new stompProtocol(), //protocol factory
+        // stompEncoderDecoder::new //message encoder decoder factory
         // ).serve();
     }
 }
