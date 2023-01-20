@@ -129,17 +129,26 @@ std::string StompProtocol::DisconnectFrame(std::string messege){
 std::string StompProtocol::PrintSummary(std::string messege){
     // summary {game_name} {user} {file}
     std::vector<std::string> answer;
+    //std::cout<< "inside PrintSummary a" << endl;
     std::vector<std::string> messegeParts = split(messege, " ");
+    //std::cout<< "inside PrintSummary b" << endl;
     std::string game_name = messegeParts[1];
+    //std::cout<< "inside PrintSummary b/1" << endl;
     int indexOfSep = game_name.find("_");
+    //std::cout<< "inside PrintSummary b/2" << endl;
     std::string team_a_name = game_name.substr(0,indexOfSep);
+    //std::cout<< "inside PrintSummary b/3" << endl;
     std::string team_b_name = game_name.substr(indexOfSep + 1);
+    //std::cout<< "inside PrintSummary b/4" << endl;
     std::string user = messegeParts[2];
+    //std::cout<< "inside PrintSummary b/5" + user << endl;
     std::string filePath = messegeParts[3];
+    //std::cout<< "inside PrintSummary c" << endl;
     std::vector<Event> reports = connection.getReportsByUser(user, game_name);
+    //std::cout<< "inside PrintSummary d" << endl;
     std::fstream file;
     //mesharsherim the data:
-    std::string data = team_a_name + "vs" + team_b_name + "\n";
+    std::string data = team_a_name + " vs " + team_b_name + "\n";
     data += "Game stats:\n";
     data += "General stats:\n";
     for(unsigned int i = 0; i < reports.size(); i++){
@@ -216,13 +225,19 @@ void StompProtocol::serverProcess(){
             }
 
             else if(command == "MESSEGE"){
+                //std::cout << "we got here a" << std::endl;
                 vector<std::string> lines = split(responseFrame,"\n");
+                //std::cout << "we got here b" << std::endl;
                 Event newEvent = createEvent(lines);
+                //std::cout << "we got here c" << std::endl;
                 std::string userNameReported = newEvent.get_userName();
+                //std::cout << "we got here d" << std::endl;
                 std::string teamAName = newEvent.get_team_a_name();
                 std::string teamBName = newEvent.get_team_b_name();
+                //std::cout << "we got here e" << std::endl;
                 std::string gameName = teamAName+"_"+teamBName;
                 connection.addReport(userNameReported, gameName, newEvent);
+                //std::cout << "we got here f" << std::endl;
 
                 //need to print the messege to the user
                 //std::cout <<responseFrame << std::endl;
@@ -301,13 +316,22 @@ Event StompProtocol::createEvent(vector<std::string> lines){
 vector<std::string> StompProtocol::split(std::string msg, std::string delimiter)
 {
     int indexStart = 0;
-    unsigned indexEnd = msg.find(delimiter);
+    int indexEnd = msg.find(delimiter);
     std::vector <std::string> lines;
-    while (indexEnd != std::string::npos) {
+    //std::cout << "inside split a" << std::endl;
+    msg = msg + " ";
+    while ((unsigned)indexEnd < msg.length()) {
+        std::cout << "inside the while loop a" << std::endl;
         lines.push_back(msg.substr(indexStart, indexEnd - indexStart));
+        //std::cout << "inside the while loop b" << std::endl;
         indexStart = indexEnd + delimiter.length();
+        //std::cout << "inside the while loop c" << std::endl;
         indexEnd = msg.find(delimiter, indexStart);
+        std::cout << "inside the while loop d" << std::endl;
     }
+    std::cout << "inside split b" << std::endl;
+    //std::cout << lines[0] << std::endl;
+    //std::cout << "inside split c" << std::endl;
     return lines;
 }
 
